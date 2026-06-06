@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Design tokens — the same palette from v3, now as CSS variables.
+   Tailwind classes reference these via the theme config below.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg:      #0e0e0d;
+  --bg2:     #181816;
+  --bg3:     #212120;
+  --bg4:     #2c2c2a;
+  --bg5:     #363634;
+  --border:  #2e2e2c;
+  --border2: #3c3c3a;
+  --text:    #f0eeeb;
+  --text2:   #888880;
+  --text3:   #555552;
+  --green:   #22c98d;
+  --gdim:    #176644;
+  --red:     #e55555;
+  --rdim:    #6b1f1f;
+  --amber:   #f0a030;
+  --adim:    #5a3c10;
+  --blue:    #4a9ede;
+  --purple:  #9088e0;
+  --teal:    #3bbdad;
+}
+
+@theme {
+  --color-bg-base:    var(--bg);
+  --color-bg-2:       var(--bg2);
+  --color-bg-3:       var(--bg3);
+  --color-bg-4:       var(--bg4);
+  --color-bg-5:       var(--bg5);
+  --color-border:     var(--border);
+  --color-border-2:   var(--border2);
+  --color-text:       var(--text);
+  --color-text-muted: var(--text2);
+  --color-text-sub:   var(--text3);
+  --color-green:      var(--green);
+  --color-green-dim:  var(--gdim);
+  --color-red:        var(--red);
+  --color-red-dim:    var(--rdim);
+  --color-amber:      var(--amber);
+  --color-amber-dim:  var(--adim);
+  --color-blue:       var(--blue);
+  --color-purple:     var(--purple);
+  --color-teal:       var(--teal);
+  --font-sans:        'IBM Plex Sans', sans-serif;
+  --font-mono:        'IBM Plex Mono', monospace;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ─── Scrollbar (subtle, matches dark theme) ─────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg5);
+  border-radius: 3px;
+}

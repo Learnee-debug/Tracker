@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(cd /c/Users/padko/OneDrive/Desktop/Tracker/client && cat node_modules/@tanstack/react-query/package.json | grep '\"version\"' | head -1 2>&1)",
+      "Bash(grep -v \"//\\\\|!==\\\\|!=\\\\|!important\\\\|<!--\")",
+      "Bash(npx vitest *)",
+      "Bash(awk 'BEGIN{f=\"\";count=0} /^\\(export \\)?\\(async \\)?function |^  \\(export \\)?\\(async \\)?function |=>/{if\\(count>0&&count>50\\) print f\": \"count\" lines\"; f=$0; count=1; next} {count++} END{if\\(count>50\\) print f\": \"count\" lines\"}' /c/Users/padko/OneDrive/Desktop/Tracker/client/src/lib/engine.ts)",
+      "Bash(awk '/^function |^export function |^  function /{if\\(name!=\"\" && count>50\\) print name\": \"count; name=$0; count=0} {count++} END{if\\(count>50\\) print name\": \"count}' /c/Users/padko/OneDrive/Desktop/Tracker/client/src/lib/engine.ts)",
+      "Bash(grep -v \".test.\\\\|//\\\\|import\")",
+      "Bash(grep -v \".test.\\\\|import\\\\|//\")"
+    ]
+  }
+}
