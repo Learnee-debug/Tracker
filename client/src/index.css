@@ -24,6 +24,12 @@
   --blue:    #4a9ede;
   --purple:  #9088e0;
   --teal:    #3bbdad;
+
+  --text-hero:  40px;
+  --text-data:  26px;
+  --text-title: 17px;
+  --glow-green: 0 0 0 1px rgba(34,201,141,.25), 0 0 18px rgba(34,201,141,.1);
+  --glow-red:   0 0 0 1px rgba(229,85,85,.25),  0 0 18px rgba(229,85,85,.1);
 }
 
 @theme {
@@ -48,6 +54,9 @@
   --color-teal:       var(--teal);
   --font-sans:        'IBM Plex Sans', sans-serif;
   --font-mono:        'IBM Plex Mono', monospace;
+  --font-size-hero:   var(--text-hero);
+  --font-size-data:   var(--text-data);
+  --font-size-title:  var(--text-title);
 }
 
 /* ─── Base ────────────────────────────────────────────────────────────────────── */
@@ -86,8 +95,8 @@ textarea {
 /* ─── Scrollbar (subtle, matches dark theme) ─────────────────────────────────── */
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -97,4 +106,23 @@ textarea {
 ::-webkit-scrollbar-thumb {
   background: var(--bg5);
   border-radius: 3px;
+}
+
+/* ─── Utility ────────────────────────────────────────────────────────────────── */
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+.tabs-nav { position: relative; }
+.tabs-nav::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, var(--bg2));
+  pointer-events: none;
 }

@@ -1,11 +1,13 @@
 import { cn } from '@/lib/utils';
 
 interface ProgressBarProps {
-  value: number;          // 0–100
-  color?: string;         // CSS color value e.g. 'var(--green)'
-  height?: 'thin' | 'normal';
+  value: number;
+  color?: string;
+  height?: 'thin' | 'normal' | 'lg';
   className?: string;
   showValue?: boolean;
+  animated?: boolean;
+  label?: string;
 }
 
 export function ProgressBar({
@@ -14,6 +16,8 @@ export function ProgressBar({
   height = 'thin',
   className,
   showValue = false,
+  animated = false,
+  label,
 }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(100, value));
 
@@ -22,17 +26,27 @@ export function ProgressBar({
       <div
         className={cn(
           'bg-bg-4 rounded-sm overflow-hidden flex-1',
-          height === 'thin' ? 'h-[3px]' : 'h-[5px]'
+          height === 'thin'   && 'h-[3px]',
+          height === 'normal' && 'h-[5px]',
+          height === 'lg'     && 'h-[8px]'
         )}
       >
         <div
-          className="h-full rounded-sm transition-[width] duration-400"
+          className={cn(
+            'h-full rounded-sm',
+            animated ? 'transition-[width] duration-700 ease-out' : 'transition-[width] duration-500'
+          )}
           style={{ width: `${clamped}%`, background: color }}
         />
       </div>
       {showValue && (
         <span className="font-mono text-[11px] text-text-muted w-8 text-right">
           {clamped}%
+        </span>
+      )}
+      {label && (
+        <span className="font-mono text-[10px] text-text-sub whitespace-nowrap">
+          {label}
         </span>
       )}
     </div>

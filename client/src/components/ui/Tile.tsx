@@ -9,6 +9,8 @@ interface TileProps {
   progress?: number;
   progressColor?: string;
   className?: string;
+  size?: 'sm' | 'lg';
+  glow?: boolean;
 }
 
 export function Tile({
@@ -19,14 +21,28 @@ export function Tile({
   progress,
   progressColor,
   className,
+  size = 'sm',
+  glow = false,
 }: TileProps) {
   return (
-    <div className={cn('bg-bg-3 rounded px-3 py-[10px]', className)}>
+    <div
+      className={cn(
+        'bg-bg-3 rounded',
+        size === 'sm' && 'px-3 py-[10px]',
+        size === 'lg' && 'px-4 py-[14px]',
+        className
+      )}
+      style={glow ? { boxShadow: 'var(--glow-green)' } : undefined}
+    >
       <div className="text-[10px] text-text-sub uppercase tracking-[.07em] mb-[3px]">
         {label}
       </div>
       <div
-        className="font-mono text-[21px] font-medium leading-none"
+        className={cn(
+          'font-mono font-medium leading-none',
+          size === 'sm' && 'text-[21px]',
+          size === 'lg' && 'text-[26px]'
+        )}
         style={{ color }}
       >
         {value}
@@ -39,6 +55,7 @@ export function Tile({
           value={progress}
           color={progressColor ?? color}
           height="thin"
+          animated
           className="mt-[6px]"
         />
       )}
