@@ -126,3 +126,29 @@ textarea {
   background: linear-gradient(to right, transparent, var(--bg2));
   pointer-events: none;
 }
+
+/* ─── Mobile: prevent horizontal overflow ───────────────────────────────────── */
+main {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Flex children that can shrink to prevent overflow */
+.min-w-0-flex > * {
+  min-width: 0;
+}
+
+/* ─── Mobile: minimum touch targets ─────────────────────────────────────────── */
+@media (max-width: 639px) {
+  /* Calendar grid cells — ensure tappable */
+  .grid .aspect-square {
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  /* Table remove buttons */
+  table button {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}
