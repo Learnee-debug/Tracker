@@ -1,14 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CompanyMatrix — the research + readiness table for target companies.
-// Reads verify scores and coNotes from the store. No pipeline logic here.
+// CompanyMatrix — card-based layout replacing the table.
+// All business logic (buildVerifyScores, calcCompanyReadiness, getGap,
+// debounced note saves) is unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useMemo, useRef } from 'react';
 import { useCareerStore, useCareerActions } from '@/store/careerStore';
-import { Card, SectionTitle } from '@/components/ui/Card';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { Badge } from '@/components/ui/Badge';
 import { buildVerifyScores, calcCompanyReadiness } from '@/lib/engine';
 import { COMPANIES } from '@/data/companies';
-import { cn } from '@/lib/utils';
 
 function getGap(
   weights: Record<string, number>,
@@ -23,15 +24,12 @@ function getGap(
     : 'Near ready';
 }
 
-const TABLE_HEADERS = ['Company', 'OA Format', 'What They Test', 'Window', 'My Readiness', 'Notes'];
-
 export function CompanyMatrix() {
   const { state } = useCareerStore();
   const { saveCoNote } = useCareerActions();
 
   const scores = useMemo(() => buildVerifyScores(state.verify), [state.verify]);
 
-  // Debounce per-company note saves — avoids a PUT on every keystroke.
   const noteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   function handleNoteChange(name: string, value: string) {
     if (noteTimers.current[name]) clearTimeout(noteTimers.current[name]);
@@ -39,95 +37,64 @@ export function CompanyMatrix() {
   }
 
   return (
-    <Card className="mb-3">
-      <SectionTitle>Company Target Matrix — research + personal readiness</SectionTitle>
-      <div className="text-[11px] text-text-sub mb-[10px] font-mono">
-        Readiness computed from Verify tab scores. Update Verify → Matrix auto-updates.
+    <div className="mb-4">
+      <div className="font-mono text-[10px] text-text-sub mb-3 px-1">
+        COMPANY TARGET MATRIX — Readiness auto-updates from Verify scores.
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              {TABLE_HEADERS.map((h) => (
-                <th
-                  key={h}
-                  className="font-mono text-[10px] text-text-sub uppercase tracking-[.07em] text-left px-2 py-[6px] border-b border-border"
-                  style={{ minWidth: h === 'Company' || h === 'Notes' ? 130 : undefined }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {COMPANIES.map((co) => {
-              const readiness = calcCompanyReadiness(co.weights, scores);
-              const color     = readiness >= 70 ? 'var(--green)' : readiness >= 40 ? 'var(--amber)' : 'var(--red)';
-              const gap       = getGap(co.weights as Record<string, number>, scores, readiness);
-              const note      = state.coNotes[co.name] ?? '';
 
-              return (
-                <tr key={co.name} className="hover:[&>td]:bg-bg-3">
-                  {/* Company + tier badge */}
-                  <td className="px-2 py-2 border-b border-bg-3 align-top">
-                    <div className="font-medium text-text text-[13px] mb-[2px]">{co.name}</div>
-                    <span
-                      className={cn(
-                        'font-mono text-[10px] px-[6px] py-[1px] rounded-[3px]',
-                        co.tier === 'D'
-                          ? 'bg-[rgba(144,136,224,.12)] text-purple'
-                          : 'bg-[rgba(34,201,141,.12)] text-green'
-                      )}
-                    >
-                      {co.tier}
-                    </span>
-                  </td>
+      <div className="flex flex-col gap-3">
+        {COMPANIES.map((co) => {
+          const readiness = calcCompanyReadiness(co.weights, scores);
+          const color     = readiness >= 70 ? 'var(--green)' : readiness >= 40 ? 'var(--amber)' : 'var(--red)';
+          const gap       = getGap(co.weights as Record<string, number>, scores, readiness);
+          const note      = state.coNotes[co.name] ?? '';
 
-                  {/* OA format */}
-                  <td className="px-2 py-2 border-b border-bg-3 align-top text-[11px] text-text-muted">
-                    {co.oa}
-                  </td>
+          return (
+            <div
+              key={co.name}
+              className="bg-bg-3 rounded-lg p-4 border border-border"
+            >
+              {/* Row 1: Company name + tier + window */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <span className="font-medium text-[14px] text-text leading-tight">{co.name}</span>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge variant={co.tier === 'D' ? 'purple' : 'green'} size="sm">
+                    Tier {co.tier}
+                  </Badge>
+                  <span className="font-mono text-[10px] text-amber">{co.window}</span>
+                </div>
+              </div>
 
-                  {/* What they test */}
-                  <td className="px-2 py-2 border-b border-bg-3 align-top text-[11px] text-text-muted">
-                    {co.tests}
-                  </td>
+              {/* Row 2: OA format */}
+              <div className="text-[11px] text-text-sub mb-1">{co.oa}</div>
 
-                  {/* Application window */}
-                  <td className="px-2 py-2 border-b border-bg-3 align-top font-mono text-[11px] text-amber">
-                    {co.window}
-                  </td>
+              {/* Row 3: What they test */}
+              <div className="text-[11px] text-text-muted mb-3 leading-[1.4]">{co.tests}</div>
 
-                  {/* Readiness % + gap */}
-                  <td className="px-2 py-2 border-b border-bg-3 align-top">
-                    <span
-                      className="font-mono text-[11px] px-[7px] py-[2px] rounded-[3px]"
-                      style={{
-                        background: `color-mix(in srgb, ${color} 10%, transparent)`,
-                        color,
-                      }}
-                    >
-                      {readiness}%
-                    </span>
-                    <div className="text-[11px] text-text-sub mt-[2px]">{gap}</div>
-                  </td>
+              {/* Divider */}
+              <div className="border-t border-border mb-3" />
 
-                  {/* Notes — debounced inline save */}
-                  <td className="px-2 py-2 border-b border-bg-3 align-top">
-                    <input
-                      defaultValue={note}
-                      onChange={(e) => handleNoteChange(co.name, e.target.value)}
-                      placeholder="Add notes..."
-                      className="w-full bg-bg-3 text-text-muted px-1 py-[2px] outline-none text-[11px]"
-                      style={{ border: 'none', borderBottom: '1px solid var(--border)' }}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              {/* Readiness bar */}
+              <div className="flex items-center gap-3 mb-1">
+                <span className="font-mono text-[10px] text-text-sub w-[70px] flex-shrink-0">Readiness</span>
+                <ProgressBar value={readiness} color={color} height="normal" animated className="flex-1" />
+                <span className="font-mono text-[12px] font-medium w-[36px] text-right flex-shrink-0" style={{ color }}>
+                  {readiness}%
+                </span>
+              </div>
+              <div className="text-[11px] text-text-sub mb-3 pl-[78px]">{gap}</div>
+
+              {/* Notes */}
+              <input
+                defaultValue={note}
+                onChange={(e) => handleNoteChange(co.name, e.target.value)}
+                placeholder="Add notes..."
+                className="w-full bg-bg-2 text-text-muted px-3 py-[8px] rounded border border-border text-[11px] outline-none focus:border-border-2 placeholder:text-text-sub"
+              />
+            </div>
+          );
+        })}
       </div>
-    </Card>
+    </div>
   );
 }

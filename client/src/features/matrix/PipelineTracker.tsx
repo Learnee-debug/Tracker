@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// PipelineTracker — internship application pipeline add/view/delete.
-// No dependency on verify scores or company matrix data.
+// PipelineTracker — internship application pipeline.
+// Business logic (addPipeline, removePipeline) untouched.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useRef } from 'react';
@@ -13,8 +13,18 @@ const PIPELINE_STATUSES: PipelineStatus[] = [
   'Target', 'Researching', 'Applying', 'OA Done', 'Interview', 'Offer', 'Rejected',
 ];
 
+const STATUS_STYLE: Record<PipelineStatus, { bg: string; color: string }> = {
+  Target:      { bg: 'rgba(74,158,222,.15)',  color: 'var(--blue)' },
+  Researching: { bg: 'rgba(144,136,224,.15)', color: 'var(--purple)' },
+  Applying:    { bg: 'rgba(240,160,48,.15)',  color: 'var(--amber)' },
+  'OA Done':   { bg: 'rgba(59,189,173,.15)',  color: 'var(--teal)' },
+  Interview:   { bg: 'rgba(34,201,141,.15)',  color: 'var(--green)' },
+  Offer:       { bg: 'rgba(34,201,141,.3)',   color: 'var(--green)' },
+  Rejected:    { bg: 'rgba(229,85,85,.12)',   color: 'var(--red)' },
+};
+
 const INPUT_CLS =
-  'bg-bg-3 border border-border rounded px-[9px] py-[5px] text-text font-mono text-[11px] outline-none focus:border-border-2';
+  'bg-bg-3 border border-border rounded px-[9px] py-[8px] text-text font-mono text-[11px] outline-none focus:border-border-2';
 
 export function PipelineTracker() {
   const { state } = useCareerStore();
@@ -27,13 +37,9 @@ export function PipelineTracker() {
   function handleAdd() {
     const co = coRef.current?.value.trim() ?? '';
     if (!co) return;
-
     const status = (statusRef.current?.value ?? 'Target') as PipelineStatus;
     const notes  = notesRef.current?.value.trim() ?? '';
-
     addPipeline(co, status, notes);
-
-    // Reset form
     if (coRef.current)     coRef.current.value = '';
     if (notesRef.current)  notesRef.current.value = '';
     if (statusRef.current) statusRef.current.selectedIndex = 0;
@@ -47,14 +53,13 @@ export function PipelineTracker() {
     <Card>
       <SectionTitle>Internship Pipeline Tracker</SectionTitle>
 
-      {/* Add form */}
-      <div className="flex gap-2 mb-[10px] flex-wrap">
+      {/* Add form — stacked on mobile, row on desktop */}
+      <div className="flex flex-col sm:flex-row gap-2 mb-[14px]">
         <input
           ref={coRef}
           placeholder="Company"
           onKeyDown={handleKeyDown}
           className={INPUT_CLS}
-          style={{ minWidth: 120 }}
         />
         <select ref={statusRef} className={INPUT_CLS}>
           {PIPELINE_STATUSES.map((s) => (
@@ -65,13 +70,12 @@ export function PipelineTracker() {
           ref={notesRef}
           placeholder="Notes / lesson"
           onKeyDown={handleKeyDown}
-          className={`${INPUT_CLS} flex-1`}
-          style={{ minWidth: 150 }}
+          className={`${INPUT_CLS} sm:flex-1`}
         />
-        <Button onClick={handleAdd}>Add</Button>
+        <Button onClick={handleAdd} variant="primary">Add</Button>
       </div>
 
-      {/* Pipeline table */}
+      {/* Pipeline list */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -89,29 +93,41 @@ export function PipelineTracker() {
           <tbody>
             {state.pipeline.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-text-sub text-[12px] px-2 py-[10px]">
-                  No pipeline entries yet.
+                <td colSpan={4} className="text-text-sub text-[12px] px-2 py-[14px]">
+                  No pipeline entries yet. Add your first target company above.
                 </td>
               </tr>
             ) : (
-              state.pipeline.map((entry) => (
-                <tr key={entry.id}>
-                  <td className="px-2 py-2 border-b border-bg-3 font-medium text-[13px]">
-                    {entry.co}
-                  </td>
-                  <td className="px-2 py-2 border-b border-bg-3">
-                    <span className="font-mono text-[10px] px-[7px] py-[2px] rounded-[3px] bg-bg-4 text-text-muted">
-                      {entry.status}
-                    </span>
-                  </td>
-                  <td className="px-2 py-2 border-b border-bg-3 text-text-muted text-[11px]">
-                    {entry.notes || '—'}
-                  </td>
-                  <td className="px-2 py-2 border-b border-bg-3">
-                    <Button size="sm" onClick={() => removePipeline(entry.id)}>×</Button>
-                  </td>
-                </tr>
-              ))
+              state.pipeline.map((entry) => {
+                const style = STATUS_STYLE[entry.status] ?? { bg: 'var(--bg4)', color: 'var(--text2)' };
+                return (
+                  <tr key={entry.id}>
+                    <td className="px-2 py-3 border-b border-bg-3 font-medium text-[13px]">
+                      {entry.co}
+                    </td>
+                    <td className="px-2 py-3 border-b border-bg-3">
+                      <span
+                        className="font-mono text-[10px] px-[7px] py-[3px] rounded-[3px]"
+                        style={{ background: style.bg, color: style.color }}
+                      >
+                        {entry.status}
+                      </span>
+                    </td>
+                    <td className="px-2 py-3 border-b border-bg-3 text-text-muted text-[11px]">
+                      {entry.notes || '—'}
+                    </td>
+                    <td className="px-2 py-3 border-b border-bg-3">
+                      <Button
+                        size="sm"
+                        onClick={() => removePipeline(entry.id)}
+                        className="min-h-[32px]"
+                      >
+                        ×
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
