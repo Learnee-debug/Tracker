@@ -45,7 +45,9 @@ function AppInner() {
   if (stateLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
-        <span className="font-mono text-[11px] text-text-sub tracking-[.1em]">LOADING...</span>
+        <span className="font-mono text-[11px] text-text-sub tracking-[.1em] animate-pulse opacity-60">
+          CAREER OS
+        </span>
       </div>
     );
   }
@@ -54,8 +56,8 @@ function AppInner() {
     <div className="min-h-screen flex flex-col">
       <Header syncStatus={syncStatus} />
       <Tabs active={tab} onChange={setTab} />
-      <main className="flex-1 p-[18px] max-w-[960px] mx-auto w-full">
-        {tab === 'today'    && <Today />}
+      <main className="flex-1 px-4 py-5 sm:px-[18px] max-w-[960px] mx-auto w-full safe-bottom">
+        {tab === 'today'    && <Today setTab={setTab} />}
         {tab === 'calendar' && <Calendar />}
         {tab === 'risk'     && <Risk />}
         {tab === 'verify'   && <Verify />}
@@ -76,7 +78,9 @@ export function App() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
-        <span className="font-mono text-[11px] text-text-sub tracking-[.1em]">CAREER OS</span>
+        <span className="font-mono text-[11px] text-text-sub tracking-[.1em] animate-pulse opacity-60">
+          CAREER OS
+        </span>
       </div>
     );
   }

@@ -9,6 +9,13 @@ interface HeaderProps {
   syncStatus: SyncStatus;
 }
 
+const SYNC_COLOR: Record<SyncStatus, string> = {
+  idle:    'var(--text3)',
+  saved:   'var(--green)',
+  syncing: 'var(--amber)',
+  error:   'var(--red)',
+};
+
 export function Header({ syncStatus }: HeaderProps) {
   const { user, logout } = useAuth();
   const { state } = useCareerStore();
@@ -16,30 +23,28 @@ export function Header({ syncStatus }: HeaderProps) {
   const sprintDay = getSprintDay(state.sprintStart);
   const criticals = getActiveCriticalRisks(state.risks);
   const hasCritical = criticals.length > 0;
-
   const activeRisks = Object.values(state.risks).filter(Boolean).length;
 
   return (
     <header className="flex items-center justify-between px-5 py-[9px] border-b border-border bg-bg-2 sticky top-0 z-20">
       {/* Left */}
-      <div className="font-mono text-[11px] tracking-[.12em] text-text">
-        SHUBHAM // CAREER OS v4
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-[11px] tracking-[.12em] text-text">
+          SHUBHAM // CAREER OS v4
+        </span>
+
+        {/* Sprint day — desktop only */}
+        {sprintDay && (
+          <span className="hidden sm:inline font-mono text-[10px] text-amber">
+            D{sprintDay}/60
+          </span>
+        )}
       </div>
 
       {/* Right */}
       <div className="flex items-center gap-3 font-mono text-[10px] text-text-sub">
-        {/* Date */}
-        <span>{formatDate(new Date())}</span>
-
-        {/* Sprint day */}
-        {sprintDay ? (
-          <span>
-            Sprint Day{' '}
-            <span className="text-amber font-medium">{sprintDay}/60</span>
-          </span>
-        ) : (
-          <span className="text-text-sub">No sprint set</span>
-        )}
+        {/* Date — desktop only */}
+        <span className="hidden sm:inline">{formatDate(new Date())}</span>
 
         {/* Risk indicator */}
         {hasCritical ? (
@@ -56,20 +61,24 @@ export function Header({ syncStatus }: HeaderProps) {
           </span>
         )}
 
-        {/* Sync status */}
-        <span className="text-text-sub text-[10px]" title="Sync status">
-          {syncStatus === 'syncing' && '↻'}
-          {syncStatus === 'saved'   && '✓'}
-          {syncStatus === 'error'   && '⚠'}
-        </span>
+        {/* Sync dot */}
+        <span
+          className="w-[7px] h-[7px] rounded-full inline-block flex-shrink-0"
+          style={{
+            background: SYNC_COLOR[syncStatus],
+            boxShadow: syncStatus === 'error' ? 'var(--glow-red)' : 'none',
+          }}
+          title={`Sync: ${syncStatus}`}
+        />
 
         {/* User + logout */}
         {user && (
           <button
             onClick={logout}
             className="text-text-sub hover:text-text transition-colors cursor-pointer bg-none border-none"
+            title="Sign out"
           >
-            {user.email.split('@')[0]} ⏻
+            <span className="hidden sm:inline">{user.email.split('@')[0]} </span>⏻
           </button>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useCareerStore, useCareerActions } from '@/store/careerStore';
+import type { TabId } from '@/components/layout/Tabs';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Tile } from '@/components/ui/Tile';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -248,7 +249,11 @@ function QuickStats() {
 
 // ─── Today (root) ─────────────────────────────────────────────────────────────
 
-export function Today() {
+interface TodayProps {
+  setTab?: (tab: TabId) => void;
+}
+
+export function Today({ setTab: _setTab }: TodayProps) {
   return (
     <div>
       <MissionBox />
