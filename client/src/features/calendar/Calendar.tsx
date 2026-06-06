@@ -41,113 +41,127 @@ export function Calendar() {
   return (
     <div>
       <Card>
-        <SectionTitle>60-Day Sprint Calendar</SectionTitle>
+        {/* Section title + sprint start input inline */}
+        <SectionTitle
+          right={
+            <input
+              type="date"
+              value={state.sprintStart}
+              onChange={(e) => setSprintStart(e.target.value)}
+              className="bg-bg-3 border border-border rounded px-[9px] py-[4px] text-text font-mono text-[10px] outline-none focus:border-border-2"
+            />
+          }
+        >
+          60-Day Sprint
+        </SectionTitle>
 
-        {/* Sprint start input */}
-        <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <span className="font-mono text-[10px] text-text-sub">Sprint start:</span>
-          <input
-            type="date"
-            value={state.sprintStart}
-            onChange={(e) => setSprintStart(e.target.value)}
-            className="bg-bg-3 border border-border rounded px-[9px] py-[5px] text-text font-mono text-[11px] outline-none focus:border-border-2"
-          />
-          <span className="font-mono text-[10px] text-text-sub">
-            Click a day: empty → good → partial → miss
-          </span>
-        </div>
-
-        {/* Legend */}
-        <div className="flex gap-3 mb-[10px]">
-          {(['good', 'partial', 'miss'] as const).map((s) => (
-            <div key={s} className="flex items-center gap-[5px] text-[11px] text-text-sub">
-              <div
-                className="w-3 h-3 rounded-[2px]"
-                style={{ background: STATE_COLOR[s] }}
-              />
-              {s.charAt(0).toUpperCase() + s.slice(1)}
+        {/* Stats row — above the grid */}
+        <div className="grid grid-cols-3 sm:flex sm:gap-6 mb-4">
+          {[
+            { label: 'Streak',    value: streak,        color: 'var(--amber)' },
+            { label: 'Good',      value: stats.good,    color: 'var(--green)' },
+            { label: 'Partial',   value: stats.partial, color: 'var(--amber)' },
+            { label: 'Miss',      value: stats.miss,    color: 'var(--red)' },
+            { label: 'Logged',    value: stats.logged,  color: 'var(--text2)' },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="text-center sm:text-left">
+              <div className="font-mono text-[22px] font-medium leading-none mb-[2px]" style={{ color }}>
+                {value}
+              </div>
+              <div className="text-[10px] text-text-sub uppercase tracking-[.06em]">{label}</div>
             </div>
           ))}
-          <div className="flex items-center gap-[5px] text-[11px] text-text-sub">
-            <div className="w-3 h-3 rounded-[2px] bg-bg-4 border border-border" />
-            Not started
-          </div>
         </div>
 
-        {/* Grid */}
+        {/* Grid — 11 cols: 1 label + 10 days */}
         <div
           className="grid gap-[5px] mb-3"
-          style={{ gridTemplateColumns: 'repeat(10, 1fr)' }}
+          style={{ gridTemplateColumns: '20px repeat(10, 1fr)' }}
         >
-          {Array.from({ length: 60 }, (_, i) => {
-            const day = i + 1;
-            const dayState = state.cal[`d${day}`] ?? '';
-            const isFuture = state.sprintStart
-              ? (() => {
-                  const d = new Date(state.sprintStart);
-                  d.setDate(d.getDate() + (day - 1));
-                  d.setHours(0, 0, 0, 0);
-                  return d > todayDate;
-                })()
-              : false;
-            const isToday = sprintDay === day;
+          {Array.from({ length: 6 }, (_, week) => {
+            const days = Array.from({ length: 10 }, (_, d) => {
+              const day = week * 10 + d + 1;
+              const dayState = state.cal[`d${day}`] ?? '';
+              const isFuture = state.sprintStart
+                ? (() => {
+                    const dt = new Date(state.sprintStart);
+                    dt.setDate(dt.getDate() + (day - 1));
+                    dt.setHours(0, 0, 0, 0);
+                    return dt > todayDate;
+                  })()
+                : false;
+              const isToday = sprintDay === day;
 
-            return (
+              return (
+                <div
+                  key={day}
+                  onClick={() => !isFuture && cycleCalDay(day)}
+                  title={`Day ${day}`}
+                  className={cn(
+                    'aspect-square rounded flex items-center justify-center border transition-transform relative',
+                    isFuture
+                      ? 'opacity-30 cursor-default border-border bg-bg-4'
+                      : 'cursor-pointer hover:scale-[1.08] hover:z-10',
+                    !isFuture && !dayState && 'border-border bg-bg-4',
+                    isToday && 'ring-2 ring-white shadow-sm'
+                  )}
+                  style={
+                    dayState && !isFuture
+                      ? {
+                          background: STATE_COLOR[dayState as Exclude<CalDayState, ''>],
+                          borderColor: STATE_COLOR[dayState as Exclude<CalDayState, ''>],
+                        }
+                      : undefined
+                  }
+                >
+                  <span
+                    className={cn(
+                      'font-mono pointer-events-none',
+                      isToday ? 'text-[11px] text-white' : 'text-[9px] text-white/60'
+                    )}
+                  >
+                    {day}
+                  </span>
+                </div>
+              );
+            });
+
+            return [
               <div
-                key={day}
-                onClick={() => !isFuture && cycleCalDay(day)}
-                title={`Day ${day}`}
-                className={cn(
-                  'aspect-square rounded flex items-center justify-center border transition-transform relative',
-                  isFuture
-                    ? 'opacity-30 cursor-default border-border bg-bg-4'
-                    : 'cursor-pointer hover:scale-[1.08] hover:z-10',
-                  !isFuture && !dayState && 'border-border bg-bg-4',
-                  isToday && 'ring-2 ring-text'
-                )}
-                style={
-                  dayState && !isFuture
-                    ? { background: STATE_COLOR[dayState as Exclude<CalDayState, ''>], borderColor: STATE_COLOR[dayState as Exclude<CalDayState, ''>] }
-                    : undefined
-                }
+                key={`w${week}`}
+                className="flex items-center justify-end pr-1"
               >
-                <span className="font-mono text-[9px] text-white/60 pointer-events-none">
-                  {day}
-                </span>
-              </div>
-            );
+                <span className="font-mono text-[9px] text-text-sub">W{week + 1}</span>
+              </div>,
+              ...days,
+            ];
           })}
         </div>
 
-        {/* Stats row */}
-        <div className="flex gap-4 flex-wrap">
-          {[
-            { label: 'Streak',    value: streak,        color: 'var(--amber)' },
-            { label: 'Good Days', value: stats.good,    color: 'var(--green)' },
-            { label: 'Partial',   value: stats.partial, color: 'var(--amber)' },
-            { label: 'Miss',      value: stats.miss,    color: 'var(--red)' },
-            { label: 'Logged',    value: stats.logged,  color: 'var(--text-muted)' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="text-center">
-              <div className="font-mono text-[20px] font-medium" style={{ color }}>
-                {value}
-              </div>
-              <div className="text-[10px] text-text-sub uppercase tracking-[.06em]">
-                {label}
-              </div>
-            </div>
+        {/* Legend — inline */}
+        <div className="flex flex-wrap gap-4 text-[10px] text-text-sub border-t border-border pt-3">
+          {([
+            { label: 'Good',        color: 'var(--green)' },
+            { label: 'Partial',     color: 'var(--amber)' },
+            { label: 'Miss',        color: 'var(--red)' },
+          ] as const).map(({ label, color }) => (
+            <span key={label} className="flex items-center gap-[5px]">
+              <span className="w-3 h-3 rounded-[2px] inline-block" style={{ background: color }} />
+              {label}
+            </span>
           ))}
+          <span className="flex items-center gap-[5px]">
+            <span className="w-3 h-3 rounded-[2px] inline-block bg-bg-4 border border-border" />
+            Not started
+          </span>
         </div>
-      </Card>
 
-      {/* Pattern key */}
-      <Card>
-        <SectionTitle>Sprint Pattern — what the calendar tells you</SectionTitle>
-        <div className="font-mono text-[11px] text-text-muted leading-[2.2]">
-          <span style={{ color: 'var(--green)' }}>3+ consecutive green</span> → Pattern established. Protect it.<br />
-          <span style={{ color: 'var(--amber)' }}>2 amber in a row</span> → Drift starting. Identify cause in Weekly tab.<br />
-          <span style={{ color: 'var(--red)' }}>Any red</span> → Not a disaster. But 2 red in same week = serious drift.<br />
-          <span className="text-text-sub">Blank squares past Day 20</span> → You are behind. Sprint is failing.
+        {/* Pattern key — 3 lines inline */}
+        <div className="mt-3 pt-3 border-t border-border font-mono text-[10px] text-text-sub leading-[2.2]">
+          <span style={{ color: 'var(--green)' }}>3+ green</span> → Pattern locked. Protect it.{'  '}
+          <span style={{ color: 'var(--amber)' }}>2 amber in row</span> → Check Weekly tab.{'  '}
+          <span style={{ color: 'var(--red)' }}>Any red</span> → Not fatal. 2/week = serious.{'  '}
+          <span className="text-text-sub">Blank past D20</span> → Sprint failing.
         </div>
       </Card>
     </div>
