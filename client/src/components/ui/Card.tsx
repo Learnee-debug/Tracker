@@ -7,6 +7,7 @@ interface CardProps {
   className?: string;
   variant?: CardVariant;
   noPad?: boolean;
+  style?: React.CSSProperties;
 }
 
 const VARIANT_CLASSES: Record<CardVariant, string> = {
@@ -16,7 +17,7 @@ const VARIANT_CLASSES: Record<CardVariant, string> = {
   inset:   'bg-bg-3 border border-border rounded-md p-4',
 };
 
-export function Card({ children, className, variant = 'default', noPad = false }: CardProps) {
+export function Card({ children, className, variant = 'default', noPad = false, style }: CardProps) {
   return (
     <div
       className={cn(
@@ -24,6 +25,7 @@ export function Card({ children, className, variant = 'default', noPad = false }
         noPad && '!p-0',
         className
       )}
+      style={style}
     >
       {children}
     </div>

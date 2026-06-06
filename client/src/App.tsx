@@ -73,6 +73,16 @@ function AppInner() {
 // ─── Root app — handles auth gate ─────────────────────────────────────────────
 
 export function App() {
+  // PREVIEW_MODE: bypass auth gate for screenshot verification.
+  // Revert before shipping — do not commit this flag.
+  if (import.meta.env.VITE_PREVIEW_MODE === 'true') {
+    return (
+      <CareerStoreProvider>
+        <AppInner />
+      </CareerStoreProvider>
+    );
+  }
+
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
