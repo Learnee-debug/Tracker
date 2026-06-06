@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/api/client';
+import { Button } from '@/components/ui/Button';
 
 type Mode = 'login' | 'register';
 
 export function AuthPage() {
   const { login, register } = useAuth();
-  const [mode, setMode]         = useState<Mode>('login');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [mode, setMode]       = useState<Mode>('login');
+  const [error, setError]     = useState('');
+  const [loading, setLoading] = useState(false);
 
   const emailRef    = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -43,12 +44,12 @@ export function AuthPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-bg-2 border border-border rounded-md p-6">
+        <div className="bg-bg-2 border border-border rounded-md p-7">
           <div className="font-mono text-[10px] text-text-sub uppercase tracking-[.1em] mb-5">
             {mode === 'login' ? 'Sign in' : 'Create account'}
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="block font-mono text-[10px] text-text-muted mb-1 tracking-[.06em]">
                 EMAIL
@@ -58,7 +59,7 @@ export function AuthPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-text font-mono text-[11px] outline-none focus:border-border-2"
+                className="w-full bg-bg-3 border border-border rounded px-3 py-[10px] text-text font-mono text-[11px] outline-none focus:border-border-2"
               />
             </div>
 
@@ -72,7 +73,7 @@ export function AuthPage() {
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 required
                 minLength={8}
-                className="w-full bg-bg-3 border border-border rounded px-3 py-2 text-text font-mono text-[11px] outline-none focus:border-border-2"
+                className="w-full bg-bg-3 border border-border rounded px-3 py-[10px] text-text font-mono text-[11px] outline-none focus:border-border-2"
               />
               {mode === 'register' && (
                 <div className="text-[10px] text-text-sub mt-1 font-mono">
@@ -82,16 +83,21 @@ export function AuthPage() {
             </div>
 
             {error && (
-              <div className="text-[11px] text-red font-mono">{error}</div>
+              <div className="text-[11px] text-red font-mono border-l-4 border-red pl-3">
+                {error}
+              </div>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="bg-green text-bg font-mono text-[11px] tracking-[.05em] px-4 py-[8px] rounded cursor-pointer border-none mt-1 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="mt-1"
             >
               {loading ? '...' : mode === 'login' ? 'Sign in' : 'Create account'}
-            </button>
+            </Button>
           </form>
 
           {/* Toggle */}
