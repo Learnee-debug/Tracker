@@ -14,10 +14,10 @@ const PORT = process.env.PORT ?? 3001;
 
 app.use(cors({
   origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
-  credentials: true, // required for httpOnly cookies
+  credentials: true,
 }));
 
-app.use(express.json({ limit: '256kb' })); // state payload will never exceed ~50KB
+app.use(express.json({ limit: '256kb' }));
 app.use(cookieParser());
 
 // ─── Routes ────────────────────────────────────────────────────────────────────
@@ -25,25 +25,40 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/state', stateRoutes);
 
-// Health check — used by Railway and monitoring
+// Health check — must respond before MongoDB connects so Railway
+// healthcheck passes during the startup window.
 app.get('/health', (_req, res) => {
   res.status(200).json({ ok: true, uptime: process.uptime() });
 });
 
-// ─── Error handler — must be last ─────────────────────────────────────────────
+// ─── Error handler ─────────────────────────────────────────────────────────────
 
 app.use(errorHandler);
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
+// Start HTTP server FIRST so the Railway healthcheck gets a 200 immediately.
+// Then connect to MongoDB. If MongoDB fails, log and exit — Railway will restart.
 
 async function start(): Promise<void> {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`[server] Running on http://localhost:${PORT}`);
+  // Step 1: bind to port immediately
+  await new Promise<void>((resolve) => {
+    app.listen(PORT, () => {
+      console.log(`[server] Listening on port ${PORT}`);
+      resolve();
+    });
   });
+
+  // Step 2: connect to database
+  try {
+    await connectDB();
+    console.log('[server] Ready');
+  } catch (err) {
+    console.error('[server] MongoDB connection failed:', err);
+    process.exit(1);
+  }
 }
 
 start().catch((err) => {
-  console.error('[server] Failed to start:', err);
+  console.error('[server] Fatal startup error:', err);
   process.exit(1);
 });
