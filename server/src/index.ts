@@ -12,8 +12,23 @@ const PORT = process.env.PORT ?? 3001;
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
 
+// Accept comma-separated origins in CLIENT_ORIGIN, plus the hardcoded
+// Vercel production URL as a fallback so CORS works before the env var is set.
+const ALLOWED_ORIGINS = new Set([
+  'http://localhost:5173',
+  'https://career-os-jet.vercel.app',
+  ...(process.env.CLIENT_ORIGIN ?? '').split(',').map(o => o.trim()).filter(Boolean),
+]);
+
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, mobile apps)
+    if (!origin || ALLOWED_ORIGINS.has(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
 }));
 
