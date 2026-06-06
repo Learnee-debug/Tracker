@@ -1,8 +1,8 @@
 [build]
-buildCommand = "cd server && npm install && npx tsc"
+buildCommand = "cd server && npm install"
 
 [deploy]
-startCommand = "node server/dist/index.js"
+startCommand = "cd server && npx tsx src/index.ts"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"

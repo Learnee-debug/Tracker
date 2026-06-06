@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "tsx src/index.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -16,7 +16,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.0",
-    "zod": "^3.25.28"
+    "zod": "^3.25.28",
+    "tsx": "^4.19.4"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -25,7 +26,6 @@
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.21",
-    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
 }
