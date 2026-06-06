@@ -34,12 +34,16 @@ function signRefreshToken(userId: string): string {
 }
 
 function setRefreshCookie(res: Response, token: string): void {
+  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie(REFRESH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-    path: '/api/auth',                // restrict cookie scope to auth endpoints
+    // In production: frontend (Vercel) and backend (Railway) are different origins.
+    // sameSite:'none' + secure:true is required for cross-origin cookie sending.
+    // In development: same origin (localhost), strict is fine.
+    secure:   isProduction,
+    sameSite: isProduction ? 'none' : 'strict',
+    maxAge:   7 * 24 * 60 * 60 * 1000, // 7 days in ms
+    path:     '/api/auth',              // restrict cookie scope to auth endpoints
   });
 }
 
