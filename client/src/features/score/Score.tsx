@@ -2,7 +2,7 @@ import { useCareerStore, useCareerActions } from '@/store/careerStore';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import type { CareerState } from 'shared/types';
+import type { CareerState } from '@/types';
 
 interface MetricRow {
   key:     keyof CareerState['score'];

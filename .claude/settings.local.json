@@ -12,7 +12,22 @@
       "Bash(grep -v \".test.\\\\|//\\\\|import\")",
       "Bash(grep -v \".test.\\\\|import\\\\|//\")",
       "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker add -A)",
-      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker status)"
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker status)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker remote set-url origin https://github.com/Learnee-debug/Tracker.git)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker remote -v)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker add server/src/routes/auth.ts)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m ' *)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker push origin master)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker add railway.toml)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: remove redundant npm install from railway buildCommand *)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker add server/src/index.ts)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: start HTTP server before MongoDB connect — healthcheck passes immediately *)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: build inside server/ directly — cd server && npm install && npx tsc *)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker add server/package.json railway.toml)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: run server with tsx directly — no compilation step *)",
+      "Bash(vercel deploy *)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: inline shared types into client — fixes Vercel build *)"
     ]
   }
 }

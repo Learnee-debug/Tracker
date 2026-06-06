@@ -1,5 +1,5 @@
 import { apiFetch } from './client';
-import type { CareerState } from 'shared/types';
+import type { CareerState } from '@/types';
 
 export const stateApi = {
   get: () =>

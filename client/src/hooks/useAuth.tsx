@@ -9,7 +9,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi } from '@/api/auth';
 import { setAccessToken } from '@/api/client';
-import type { User } from 'shared/types';
+import type { User } from '@/types';
 
 interface AuthState {
   user: User | null;

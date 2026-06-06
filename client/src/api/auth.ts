@@ -1,5 +1,5 @@
 import { apiFetch } from './client';
-import type { AuthResponse } from 'shared/types';
+import type { AuthResponse } from '@/types';
 
 export const authApi = {
   register: (email: string, password: string) =>

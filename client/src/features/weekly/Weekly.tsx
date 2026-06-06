@@ -6,7 +6,7 @@ import { Textarea, Select } from '@/components/ui/Input';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { calcWeeklyScore } from '@/lib/engine';
 import { useCareerStore } from '@/store/careerStore';
-import type { WeeklyReviewInputs } from 'shared/types';
+import type { WeeklyReviewInputs } from '@/types';
 
 function scoreLabel(score: number): { text: string; color: string } {
   if (score >= 85) return { text: 'Strong. Maintain.',               color: 'var(--green)' };

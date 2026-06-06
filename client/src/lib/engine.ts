@@ -11,7 +11,7 @@
 // reused anywhere (server-side validation, CLI scripts, future mobile app).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { CareerState, CalDayState, RiskId, Mission, TierResult, TierId, WeeklyReviewInputs } from 'shared/types';
+import type { CareerState, CalDayState, RiskId, Mission, TierResult, TierId, WeeklyReviewInputs } from '@/types';
 import { CHALLENGES, SKILL_KEYS, type SkillKey } from '@/data/challenges';
 import { HX_DEFS, HX_ORDER } from '@/data/hxDefs';
 import { DSA_SCHEDULE } from '@/data/dsaSchedule';

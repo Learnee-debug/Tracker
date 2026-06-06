@@ -21,7 +21,7 @@ import {
   calcWeeklyScore,
   getSprintDay,
 } from '../lib/engine';
-import type { CareerState } from 'shared/types';
+import type { CareerState } from '@/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

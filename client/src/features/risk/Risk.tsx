@@ -4,7 +4,7 @@ import { Tile } from '@/components/ui/Tile';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { RISK_LEVELS, RISK_RECOVERY } from '@/lib/engine';
-import type { RiskId } from 'shared/types';
+import type { RiskId } from '@/types';
 
 interface RiskDef {
   id: RiskId;

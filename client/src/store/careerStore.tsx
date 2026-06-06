@@ -13,7 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import type { CareerState, RiskId, PipelineEntry, PipelineStatus } from 'shared/types';
+import type { CareerState, RiskId, PipelineEntry, PipelineStatus } from '@/types';
 import type { SkillKey } from '@/data/challenges';
 import { generateId } from '@/lib/utils';
 

@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { stateApi } from '@/api/state';
-import type { CareerState } from 'shared/types';
+import type { CareerState } from '@/types';
 
 export type SyncStatus = 'idle' | 'syncing' | 'saved' | 'error';
 

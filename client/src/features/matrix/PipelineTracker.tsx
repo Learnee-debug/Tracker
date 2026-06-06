@@ -7,7 +7,7 @@ import { useRef } from 'react';
 import { useCareerStore, useCareerActions } from '@/store/careerStore';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import type { PipelineStatus } from 'shared/types';
+import type { PipelineStatus } from '@/types';
 
 const PIPELINE_STATUSES: PipelineStatus[] = [
   'Target', 'Researching', 'Applying', 'OA Done', 'Interview', 'Offer', 'Rejected',

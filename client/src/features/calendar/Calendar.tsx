@@ -3,7 +3,7 @@ import { useCareerStore, useCareerActions } from '@/store/careerStore';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 import { calcStreak, getSprintDay } from '@/lib/engine';
-import type { CalDayState } from 'shared/types';
+import type { CalDayState } from '@/types';
 
 const STATE_COLOR: Record<Exclude<CalDayState, ''>, string> = {
   good:    'var(--green)',
