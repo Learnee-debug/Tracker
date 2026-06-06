@@ -1,0 +1,14 @@
+# Railway build configuration for the server package.
+# The monorepo root is one level up — shared/types.ts is referenced
+# via relative TypeScript path aliases (../shared/*) and all imports
+# are `import type`, so they are fully erased in compiled output.
+# No workspace resolution needed at runtime.
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "node dist/index.js"
