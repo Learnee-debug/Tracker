@@ -45,6 +45,7 @@ export function Weekly() {
     changeText:  '',
   });
   const [saveError, setSaveError] = useState('');
+  const [saved, setSaved] = useState(false);
 
   const score = calcWeeklyScore(inputs);
   const { text: labelText, color: labelColor } = scoreLabel(score);
@@ -56,12 +57,14 @@ export function Weekly() {
     }
     setSaveError('');
     saveWeekly(score, inputs.avoidText, inputs.changeText);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 4000);
   }
 
   return (
     <div>
-      <div className="grid gap-3 mb-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
-        {/* Score card */}
+      {/* Score + key — stacked on mobile, 2-col on desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
         <Card className="mb-0">
           <SectionTitle>This Week&apos;s Score</SectionTitle>
           <div
@@ -71,15 +74,15 @@ export function Weekly() {
             {score > 0 ? score : '—'}
           </div>
           <div className="text-center text-[12px] text-text-muted mt-[2px]">{labelText}</div>
-          <ProgressBar
-            value={score}
-            color={labelColor}
-            height="normal"
-            className="mt-[10px]"
-          />
+          <ProgressBar value={score} color={labelColor} height="normal" animated className="mt-[10px]" />
+          {/* Completion feedback */}
+          {saved && (
+            <div className="mt-3 pt-3 border-t border-[rgba(34,201,141,.2)] font-mono text-[12px] text-green">
+              Week logged — Score: {score}/100 ✓
+            </div>
+          )}
         </Card>
 
-        {/* Score key */}
         <Card className="mb-0">
           <SectionTitle>Score Key</SectionTitle>
           <div className="font-mono text-[11px] leading-[2.2] text-text-muted">
@@ -95,20 +98,20 @@ export function Weekly() {
       <Card>
         <SectionTitle>Sunday Review</SectionTitle>
 
-        <div className="mb-3">
-          <label className="block text-[12px] text-text font-medium mb-1">
+        <div className="mb-4">
+          <label className="block text-[13px] text-text font-medium mb-1">
             1. DSA problems owned this week (new)
           </label>
           <input
             type="number"
             min={0}
             placeholder="e.g. 14"
-            className="bg-bg-3 border border-border rounded px-[10px] py-[7px] text-text outline-none focus:border-border-2 w-full"
+            className="bg-bg-3 border border-border rounded px-[10px] py-[8px] text-text outline-none focus:border-border-2 w-full"
             onChange={(e) => setInputs((p) => ({ ...p, dsaCount: parseInt(e.target.value) || 0 }))}
           />
         </div>
 
-        <div className="mb-3">
+        <div className="mb-4">
           <Select
             label="2. Committed every day?"
             options={COMMIT_OPTIONS}
@@ -117,7 +120,7 @@ export function Weekly() {
           />
         </div>
 
-        <div className="mb-3">
+        <div className="mb-4">
           <Select
             label="3. Built and shipped real features?"
             options={BUILD_OPTIONS}
@@ -126,7 +129,7 @@ export function Weekly() {
           />
         </div>
 
-        <div className="mb-3">
+        <div className="mb-4">
           <Textarea
             label="4. What did you avoid? (honest — required for points)"
             placeholder="e.g. Trees problems, error handling, this very review..."
@@ -135,7 +138,7 @@ export function Weekly() {
           />
         </div>
 
-        <div className="mb-3">
+        <div className="mb-4">
           <Textarea
             label="5. Biggest bottleneck?"
             placeholder="e.g. Confusion on useEffect, decision fatigue..."
@@ -144,7 +147,7 @@ export function Weekly() {
           />
         </div>
 
-        <div className="mb-3">
+        <div className="mb-4">
           <Textarea
             label="6. Specific change next week (concrete action = points)"
             placeholder="e.g. DSA before Slack daily, Trees Mon–Wed..."
@@ -154,10 +157,12 @@ export function Weekly() {
         </div>
 
         {saveError && (
-          <div className="text-[11px] text-red mb-2">{saveError}</div>
+          <div className="text-[11px] text-red mb-3 border-l-4 border-red pl-3">{saveError}</div>
         )}
 
-        <Button onClick={handleSave}>Save This Week</Button>
+        <Button onClick={handleSave} variant="primary" className="w-full sm:w-auto">
+          Save This Week
+        </Button>
       </Card>
 
       {/* History */}
@@ -171,7 +176,7 @@ export function Weekly() {
             return (
               <div
                 key={entry.id}
-                className="flex gap-[10px] items-center py-[6px] border-b border-bg-3 last:border-b-0 text-[12px]"
+                className="flex gap-[10px] items-center py-[10px] border-b border-bg-3 last:border-b-0 text-[12px]"
               >
                 <span className="font-mono text-[11px] text-text-sub min-w-[72px]">
                   {entry.date}
