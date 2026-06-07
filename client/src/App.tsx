@@ -18,10 +18,26 @@ import { Score }    from '@/features/score/Score';
 
 // ─── Inner app — rendered only when authenticated ─────────────────────────────
 
+const VALID_TABS: TabId[] = ['today', 'calendar', 'risk', 'verify', 'hireonyx', 'matrix', 'weekly', 'score'];
+
+function readStoredTab(): TabId {
+  try {
+    const stored = localStorage.getItem('career-os-tab') as TabId | null;
+    return stored && VALID_TABS.includes(stored) ? stored : 'today';
+  } catch {
+    return 'today';
+  }
+}
+
 function AppInner() {
   const { state }      = useCareerStore();
   const { loadState, resetNNIfNewDay } = useCareerActions();
-  const [tab, setTab]  = useState<TabId>('today');
+  const [tab, setTab]  = useState<TabId>(readStoredTab);
+
+  function handleTabChange(id: TabId) {
+    setTab(id);
+    try { localStorage.setItem('career-os-tab', id); } catch {}
+  }
 
   // ── Load state from server on mount ─────────────────────────────────────────
   // React Query v5 removed onSuccess — use useEffect watching the data instead.
@@ -53,7 +69,7 @@ function AppInner() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header syncStatus={syncStatus} />
-      <Tabs active={tab} onChange={setTab} />
+      <Tabs active={tab} onChange={handleTabChange} />
       <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
         {tab === 'today'    && <Today />}
         {tab === 'calendar' && <Calendar />}
