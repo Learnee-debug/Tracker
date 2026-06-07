@@ -1,75 +1,80 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useCareerStore } from '@/store/careerStore';
-import { getSprintDay } from '@/lib/engine';
-import { formatDate } from '@/lib/utils';
-import { getActiveCriticalRisks } from '@/lib/engine';
+import { getSprintDay, getActiveCriticalRisks } from '@/lib/engine';
 import type { SyncStatus } from '@/hooks/useSyncState';
 
-interface HeaderProps {
-  syncStatus: SyncStatus;
-}
+interface HeaderProps { syncStatus: SyncStatus; }
+
+const SYNC_ICON: Record<SyncStatus, string> = {
+  idle:    '',
+  syncing: '↻',
+  saved:   '✓',
+  error:   '!',
+};
+
+const SYNC_COLOR: Record<SyncStatus, string> = {
+  idle:    'text-text-faint',
+  syncing: 'text-text-sub animate-spin',
+  saved:   'text-green',
+  error:   'text-red',
+};
 
 export function Header({ syncStatus }: HeaderProps) {
   const { user, logout } = useAuth();
   const { state } = useCareerStore();
 
-  const sprintDay = getSprintDay(state.sprintStart);
-  const criticals = getActiveCriticalRisks(state.risks);
-  const hasCritical = criticals.length > 0;
-
-  const activeRisks = Object.values(state.risks).filter(Boolean).length;
+  const sprintDay   = getSprintDay(state.sprintStart);
+  const criticals   = getActiveCriticalRisks(state.risks);
+  const totalRisks  = Object.values(state.risks).filter(Boolean).length;
 
   return (
-    <header className="flex items-center justify-between px-5 py-[9px] border-b border-border bg-bg-2 sticky top-0 z-20">
-      {/* Left */}
-      <div className="font-mono text-[11px] tracking-[.12em] text-text">
-        SHUBHAM // CAREER OS v4
+    <header className="h-11 flex items-center justify-between px-5 border-b border-border bg-bg-2 sticky top-0 z-20">
+      {/* Left — wordmark */}
+      <div className="font-mono text-[11px] text-text font-medium tracking-[0.1em] select-none">
+        CAREER OS
       </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-3 font-mono text-[10px] text-text-sub">
-        {/* Date */}
-        <span>{formatDate(new Date())}</span>
-
+      {/* Right — contextual info */}
+      <div className="flex items-center gap-4">
         {/* Sprint day */}
         {sprintDay ? (
-          <span>
-            Sprint Day{' '}
-            <span className="text-amber font-medium">{sprintDay}/60</span>
+          <span className="font-mono text-[11px] text-text-sub">
+            Day <span className="text-amber font-medium">{sprintDay}</span>/60
           </span>
         ) : (
-          <span className="text-text-sub">No sprint set</span>
+          <span className="font-mono text-[11px] text-text-faint">No sprint</span>
         )}
 
-        {/* Risk indicator */}
-        {hasCritical ? (
-          <span className="px-2 py-[2px] rounded-[3px] bg-red-dim text-[#f5b8b8] text-[10px]">
-            CRITICAL
+        {/* Risk pill */}
+        {criticals.length > 0 ? (
+          <span className="font-mono text-[9px] px-2 py-[3px] rounded bg-[var(--rbg)] text-red border border-[var(--rborder)] uppercase tracking-[0.06em]">
+            {criticals.length} critical
           </span>
-        ) : activeRisks > 0 ? (
-          <span className="px-2 py-[2px] rounded-[3px] bg-amber-dim text-[#f5d8a0] text-[10px]">
-            {activeRisks} RISK{activeRisks > 1 ? 'S' : ''}
+        ) : totalRisks > 0 ? (
+          <span className="font-mono text-[9px] px-2 py-[3px] rounded bg-[var(--abg)] text-amber border border-[var(--aborder)] uppercase tracking-[0.06em]">
+            {totalRisks} risk{totalRisks > 1 ? 's' : ''}
           </span>
         ) : (
-          <span className="px-2 py-[2px] rounded-[3px] bg-green-dim text-[#b8f5e0] text-[10px]">
-            CLEAR
+          <span className="font-mono text-[9px] px-2 py-[3px] rounded bg-[var(--gbg)] text-green border border-[var(--gborder)] uppercase tracking-[0.06em]">
+            clear
           </span>
         )}
 
-        {/* Sync status */}
-        <span className="text-text-sub text-[10px]" title="Sync status">
-          {syncStatus === 'syncing' && '↻'}
-          {syncStatus === 'saved'   && '✓'}
-          {syncStatus === 'error'   && '⚠'}
-        </span>
+        {/* Sync dot */}
+        {syncStatus !== 'idle' && (
+          <span className={`font-mono text-[11px] ${SYNC_COLOR[syncStatus]}`} title={syncStatus}>
+            {SYNC_ICON[syncStatus]}
+          </span>
+        )}
 
-        {/* User + logout */}
+        {/* User */}
         {user && (
           <button
             onClick={logout}
-            className="text-text-sub hover:text-text transition-colors cursor-pointer bg-none border-none"
+            className="font-mono text-[11px] text-text-sub hover:text-text transition-colors cursor-pointer bg-transparent border-0"
+            title="Sign out"
           >
-            {user.email.split('@')[0]} ⏻
+            {user.email.split('@')[0]}
           </button>
         )}
       </div>

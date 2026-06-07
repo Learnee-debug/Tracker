@@ -51,7 +51,7 @@ export function HireOnyx() {
                 {pct}%
               </span>
             </div>
-            <ProgressBar value={pct} color={section.color} height="thin" className="mb-[7px]" />
+            <ProgressBar value={pct} color={section.color} height="xs" className="mb-[7px]" />
 
             {/* Tasks */}
             {section.tasks.map((task) => {

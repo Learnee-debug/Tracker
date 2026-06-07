@@ -1,29 +1,66 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Design tokens — the same palette from v3, now as CSS variables.
-   Tailwind classes reference these via the theme config below.
+   Design tokens — Linear meets terminal aesthetic.
+   Every color, size, and spacing decision lives here.
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  --bg:      #0e0e0d;
-  --bg2:     #181816;
-  --bg3:     #212120;
-  --bg4:     #2c2c2a;
-  --bg5:     #363634;
-  --border:  #2e2e2c;
-  --border2: #3c3c3a;
-  --text:    #f0eeeb;
-  --text2:   #888880;
-  --text3:   #555552;
-  --green:   #22c98d;
-  --gdim:    #176644;
-  --red:     #e55555;
-  --rdim:    #6b1f1f;
-  --amber:   #f0a030;
-  --adim:    #5a3c10;
-  --blue:    #4a9ede;
-  --purple:  #9088e0;
-  --teal:    #3bbdad;
+  /* Surface hierarchy — darkest to lightest */
+  --bg:      #0a0a09;
+  --bg2:     #111110;
+  --bg3:     #1a1a18;
+  --bg4:     #222220;
+  --bg5:     #2c2c2a;
+  --bg6:     #363634;
+
+  /* Borders */
+  --border:  #252523;
+  --border2: #333331;
+  --border3: #444441;
+
+  /* Text */
+  --text:    #ededeb;
+  --text2:   #a8a8a0;
+  --text3:   #6b6b66;
+  --text4:   #3d3d3a;
+
+  /* Semantic colors */
+  --green:   #1db97a;
+  --gdim:    #0d3d27;
+  --gbg:     rgba(29,185,122,.08);
+  --gborder: rgba(29,185,122,.2);
+
+  --red:     #e5534b;
+  --rdim:    #4a1a18;
+  --rbg:     rgba(229,83,75,.08);
+  --rborder: rgba(229,83,75,.22);
+
+  --amber:   #e8930a;
+  --adim:    #3d2a08;
+  --abg:     rgba(232,147,10,.08);
+  --aborder: rgba(232,147,10,.22);
+
+  --blue:    #3b82f6;
+  --bbg:     rgba(59,130,246,.08);
+  --bborder: rgba(59,130,246,.2);
+
+  --purple:  #8b5cf6;
+  --pbg:     rgba(139,92,246,.08);
+  --pborder: rgba(139,92,246,.2);
+
+  --teal:    #14b8a6;
+  --tbg:     rgba(20,184,166,.08);
+  --tborder: rgba(20,184,166,.2);
+
+  /* Typography */
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius:    6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
 }
 
 @theme {
@@ -32,11 +69,14 @@
   --color-bg-3:       var(--bg3);
   --color-bg-4:       var(--bg4);
   --color-bg-5:       var(--bg5);
+  --color-bg-6:       var(--bg6);
   --color-border:     var(--border);
   --color-border-2:   var(--border2);
+  --color-border-3:   var(--border3);
   --color-text:       var(--text);
   --color-text-muted: var(--text2);
   --color-text-sub:   var(--text3);
+  --color-text-faint: var(--text4);
   --color-green:      var(--green);
   --color-green-dim:  var(--gdim);
   --color-red:        var(--red);
@@ -46,55 +86,35 @@
   --color-blue:       var(--blue);
   --color-purple:     var(--purple);
   --color-teal:       var(--teal);
-  --font-sans:        'IBM Plex Sans', sans-serif;
-  --font-mono:        'IBM Plex Mono', monospace;
+  --font-sans:        var(--font-sans);
+  --font-mono:        var(--font-mono);
 }
 
-/* ─── Base ────────────────────────────────────────────────────────────────────── */
+/* ─── Reset ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body,
-#root {
+html, body, #root {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-input,
-select,
-textarea,
-button {
-  font-family: inherit;
-  font-size: inherit;
-}
+input, select, textarea, button { font-family: inherit; font-size: inherit; }
+textarea { resize: vertical; }
 
-textarea {
-  resize: vertical;
-}
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg6); }
 
-/* ─── Scrollbar (subtle, matches dark theme) ─────────────────────────────────── */
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg2);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--bg5);
-  border-radius: 3px;
+/* ─── Focus ──────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }

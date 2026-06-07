@@ -74,7 +74,7 @@ export function Weekly() {
           <ProgressBar
             value={score}
             color={labelColor}
-            height="normal"
+            height="sm"
             className="mt-[10px]"
           />
         </Card>

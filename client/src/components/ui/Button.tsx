@@ -1,30 +1,40 @@
 import { cn } from '@/lib/utils';
+import type { ButtonHTMLAttributes } from 'react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'ghost' | 'danger';
-  size?: 'sm' | 'md';
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'primary' | 'ghost' | 'danger' | 'success';
+  size?: 'xs' | 'sm' | 'md';
 }
+
+const VARIANT: Record<string, string> = {
+  default: 'bg-bg-3 border border-border text-text-muted hover:bg-bg-4 hover:text-text hover:border-border-2',
+  primary: 'bg-green text-bg border border-green hover:opacity-90',
+  ghost:   'bg-transparent border border-transparent text-text-sub hover:bg-bg-3 hover:text-text-muted',
+  danger:  'bg-red-dim border border-red/20 text-red hover:opacity-90',
+  success: 'bg-green-dim border border-green/20 text-green hover:opacity-90',
+};
+
+const SIZE: Record<string, string> = {
+  xs: 'text-[10px] px-2 py-1 font-mono tracking-[0.04em]',
+  sm: 'text-[11px] px-3 py-[5px] font-mono tracking-[0.03em]',
+  md: 'text-[12px] px-4 py-[7px] font-mono tracking-[0.03em]',
+};
 
 export function Button({
   children,
   className,
   variant = 'default',
-  size = 'md',
+  size = 'sm',
   ...props
 }: ButtonProps) {
   return (
     <button
       className={cn(
-        'font-mono cursor-pointer border rounded transition-colors',
-        // Size
-        size === 'sm' && 'text-[10px] px-[9px] py-[3px]',
-        size === 'md' && 'text-[11px] px-[14px] py-[6px]',
-        // Variant
-        variant === 'default' && 'bg-bg-3 border-border text-text-muted hover:bg-bg-4 hover:text-text',
-        variant === 'ghost'   && 'bg-transparent border-transparent text-text-muted hover:bg-bg-3 hover:text-text',
-        variant === 'danger'  && 'bg-red-dim border-red/30 text-red hover:opacity-90',
-        // Disabled
+        'rounded-md cursor-pointer transition-all duration-100 font-medium',
         'disabled:opacity-40 disabled:cursor-not-allowed',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green/40',
+        VARIANT[variant],
+        SIZE[size],
         className
       )}
       {...props}

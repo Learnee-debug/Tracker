@@ -1,85 +1,71 @@
 import { cn } from '@/lib/utils';
+import type { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, ReactNode } from 'react';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+const BASE_INPUT =
+  'w-full bg-bg-3 border border-border rounded-md px-3 py-2 text-text text-[13px] outline-none ' +
+  'placeholder:text-text-faint transition-colors duration-100 ' +
+  'focus:border-border-3 focus:bg-bg-3 ' +
+  'hover:border-border-2';
+
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  sublabel?: string;
   error?: string;
+  action?: ReactNode;
 }
 
-export function Input({ label, error, className, ...props }: InputProps) {
+export function Input({ label, sublabel, error, action, className, ...props }: InputProps) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && (
-        <label className="text-[11px] text-text-muted font-mono tracking-[.06em]">
-          {label}
-        </label>
+    <div className="flex flex-col gap-[6px]">
+      {(label || action) && (
+        <div className="flex items-center justify-between">
+          <label className="text-[12px] text-text font-medium">{label}</label>
+          {action && <div className="text-[11px] text-text-sub">{action}</div>}
+        </div>
       )}
+      {sublabel && <p className="text-[11px] text-text-sub -mt-1">{sublabel}</p>}
       <input
-        className={cn(
-          'bg-bg-3 border border-border rounded px-[9px] py-[5px] text-text outline-none',
-          'font-mono text-[11px]',
-          'focus:border-border-2',
-          'placeholder:text-text-sub',
-          error && 'border-red',
-          className
-        )}
+        className={cn(BASE_INPUT, 'font-mono text-[12px]', error && 'border-red', className)}
         {...props}
       />
-      {error && (
-        <span className="text-[11px] text-red">{error}</span>
-      )}
+      {error && <span className="text-[11px] text-red">{error}</span>}
     </div>
   );
 }
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   sublabel?: string;
 }
 
 export function Textarea({ label, sublabel, className, ...props }: TextareaProps) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && (
-        <span className="text-[12px] text-text font-medium">{label}</span>
-      )}
-      {sublabel && (
-        <span className="text-[11px] text-text-muted">{sublabel}</span>
-      )}
+    <div className="flex flex-col gap-[6px]">
+      {label && <label className="text-[12px] text-text font-medium">{label}</label>}
+      {sublabel && <p className="text-[11px] text-text-sub -mt-1">{sublabel}</p>}
       <textarea
-        className={cn(
-          'w-full bg-bg-3 border border-border rounded px-[10px] py-[7px] text-text outline-none resize-y',
-          'focus:border-border-2',
-          className
-        )}
+        className={cn(BASE_INPUT, 'min-h-[72px]', className)}
         {...props}
       />
     </div>
   );
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   options: { value: string; label: string }[];
 }
 
 export function Select({ label, options, className, ...props }: SelectProps) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && (
-        <span className="text-[12px] text-text font-medium">{label}</span>
-      )}
+    <div className="flex flex-col gap-[6px]">
+      {label && <label className="text-[12px] text-text font-medium">{label}</label>}
       <select
-        className={cn(
-          'bg-bg-3 border border-border rounded px-[10px] py-[6px] text-text outline-none',
-          'focus:border-border-2',
-          className
-        )}
+        className={cn(BASE_INPUT, 'font-mono text-[12px] cursor-pointer', className)}
         {...props}
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
+          <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
     </div>

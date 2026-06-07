@@ -67,7 +67,7 @@ export function Score() {
                     <ProgressBar
                       value={pct}
                       color={m.color}
-                      height="thin"
+                      height="xs"
                       className="mt-2"
                     />
                   </td>

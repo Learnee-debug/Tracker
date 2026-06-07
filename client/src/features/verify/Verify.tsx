@@ -45,7 +45,7 @@ export function Verify() {
                   {score}/10
                 </span>
               </div>
-              <ProgressBar value={score * 10} color={color} height="thin" className="mb-2" />
+              <ProgressBar value={score * 10} color={color} height="xs" className="mb-2" />
 
               {/* Challenges */}
               {def.items.map((text, i) => {
@@ -87,7 +87,7 @@ export function Verify() {
               style={{ gridTemplateColumns: '80px 1fr 48px 160px' }}
             >
               <span className="font-mono text-[11px] text-text-muted">Tier {tier}</span>
-              <ProgressBar value={pct} color={color} height="normal" />
+              <ProgressBar value={pct} color={color} height="sm" />
               <span className="font-mono text-[12px] font-medium text-right" style={{ color }}>
                 {pct}%
               </span>

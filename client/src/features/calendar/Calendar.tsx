@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useCareerStore, useCareerActions } from '@/store/careerStore';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,9 @@ export function Calendar() {
   const { setSprintStart, cycleCalDay } = useCareerActions();
 
   const sprintDay = getSprintDay(state.sprintStart);
+
+  const [dateText, setDateText] = useState(state.sprintStart);
+  useEffect(() => { setDateText(state.sprintStart); }, [state.sprintStart]);
 
   const todayDate = useMemo(() => {
     const d = new Date();
@@ -47,10 +50,15 @@ export function Calendar() {
         <div className="flex items-center gap-3 mb-3 flex-wrap">
           <span className="font-mono text-[10px] text-text-sub">Sprint start:</span>
           <input
-            type="date"
-            value={state.sprintStart}
-            onChange={(e) => setSprintStart(e.target.value)}
-            className="bg-bg-3 border border-border rounded px-[9px] py-[5px] text-text font-mono text-[11px] outline-none focus:border-border-2"
+            type="text"
+            value={dateText}
+            placeholder="YYYY-MM-DD"
+            onChange={(e) => {
+              const v = e.target.value;
+              setDateText(v);
+              if (v === '' || /^\d{4}-\d{2}-\d{2}$/.test(v)) setSprintStart(v);
+            }}
+            className="bg-bg-3 border border-border rounded px-[9px] py-[5px] text-text font-mono text-[11px] outline-none focus:border-border-2 w-[130px]"
           />
           <span className="font-mono text-[10px] text-text-sub">
             Click a day: empty → good → partial → miss
