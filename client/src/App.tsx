@@ -54,7 +54,7 @@ function AppInner() {
     <div className="min-h-screen flex flex-col">
       <Header syncStatus={syncStatus} />
       <Tabs active={tab} onChange={setTab} />
-      <main className="flex-1 p-[18px] max-w-[1280px] mx-auto w-full">
+      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
         {tab === 'today'    && <Today />}
         {tab === 'calendar' && <Calendar />}
         {tab === 'risk'     && <Risk />}
