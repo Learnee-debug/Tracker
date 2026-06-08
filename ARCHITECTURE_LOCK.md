@@ -3,7 +3,7 @@
 
 **Status: LOCKED — Maintenance Mode Only**
 **Locked: June 2026**
-**Version: 1.0.0**
+**Version: 2.0.0** — 3-screen migration complete (branch `career-os-final-migration`)
 
 ---
 
@@ -61,7 +61,7 @@ Contains exactly:
 
 7. **Honest metrics.** DSA Owned means re-solvable without hints. REVIEW exists to audit metric drift. Both must be used.
 
-8. **Undo for every increment.** The +1 button will be mis-tapped. A 3-second undo toast is not optional.
+8. **Undo for every increment.** The +1 button will be mis-tapped. A 3-second undo toast is the intended fix. *(Not yet implemented — tracked as known technical debt.)*
 
 ---
 
@@ -72,7 +72,7 @@ Contains exactly:
 | DSA Owned | Problems you can re-solve from scratch, right now, without hints | 130 by Day 60 |
 | Commits | Any meaningful push to HireOnyx | 60 by Day 60 |
 | Mocks | Timed, verbal, recorded sessions | 8 by Day 60 |
-| HireOnyx % | Completed tasks / 31 total tasks × 100 | 100% = deployment |
+| HireOnyx % | `taskIdx / 53 × 100` | 100% = deployment |
 
 Pace indicator formula: `expected = round((target / 60) × sprintDay)`
 If actual ≥ expected: "on pace". If actual < expected: "X behind".
@@ -96,16 +96,19 @@ Non-negotiable descriptions are intentionally generic so they remain accurate ov
 
 ## HireOnyx Build Sequence
 
-31 tasks across 5 phases, completed in strict order.
+53 tasks across 7 sections, completed in strict linear order.
 One task visible at a time. No skipping. No reordering.
+Progress tracked via `taskIdx: number` (linear pointer, 0 → 53).
 
-| Phase | Tasks |
-|-------|-------|
+| Section | Tasks |
+|---------|-------|
 | DATABASE | 7 tasks |
 | BACKEND | 8 tasks |
-| INTEGRATION | 5 tasks |
-| FRONTEND | 6 tasks |
-| DEPLOYMENT | 4 tasks (incl. README) |
+| AUTH | 5 tasks |
+| FRONTEND | 14 tasks |
+| DEPLOYMENT | 7 tasks |
+| DOCS | 5 tasks |
+| RESUME | 7 tasks |
 
 ---
 
