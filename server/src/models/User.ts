@@ -6,17 +6,18 @@ import type { CareerState } from 'shared/types';
 // Mirrors the localStorage defaults from v3 exactly.
 // ─────────────────────────────────────────────────────────────────────────────
 export const DEFAULT_CAREER_STATE: CareerState = {
-  score: { solved: 0, owned: 0, verbal: 0, commits: 0, mocks: 0, lc: 0, apps: 0, oss: 0 },
-  nn: { d1: false, d2: false, d3: false },
-  nnDate: '',
-  risks: {},
-  verify: {},
-  hx: {},
-  cal: {},
-  sprintStart: '',
+  score:         { solved: 0, owned: 0, verbal: 0, commits: 0, mocks: 0, lc: 0, apps: 0, oss: 0 },
+  nn:            { d1: false, d2: false, d3: false },
+  nnDate:        '',
+  hx:            {},
+  taskIdx:       0,
+  focusDSA:      '',
+  skills:        Array(15).fill(false),
+  cal:           {},
+  sprintStart:   '',
   weeklyHistory: [],
-  pipeline: [],
-  coNotes: {},
+  pipeline:      [],
+  coNotes:       {},
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -32,11 +32,13 @@ const nonNegotiablesSchema = z.object({
 });
 
 const weeklyEntrySchema = z.object({
-  id:     z.string(),
-  date:   z.string(),
-  score:  z.number().int().min(0).max(100),
-  avoid:  z.string(),
-  change: z.string(),
+  id:         z.string(),
+  date:       z.string(),
+  score:      z.number().int().min(0).max(100).optional(),
+  dsa:        z.string().optional(),
+  avoid:      z.string(),
+  constraint: z.string().optional(),
+  change:     z.string(),
 });
 
 const pipelineEntrySchema = z.object({
@@ -51,9 +53,10 @@ export const careerStateSchema = z.object({
   score:         scoreSchema,
   nn:            nonNegotiablesSchema,
   nnDate:        z.string(),
-  risks:         z.record(z.boolean()),
-  verify:        z.record(z.boolean()),
   hx:            z.record(z.boolean()),
+  taskIdx:       z.number().int().min(0),
+  focusDSA:      z.string(),
+  skills:        z.array(z.boolean()).max(20),
   cal:           z.record(z.enum(['good', 'partial', 'miss', ''])),
   sprintStart:   z.string(),
   weeklyHistory: z.array(weeklyEntrySchema).max(52),
@@ -97,9 +100,10 @@ function safeReadState(raw: unknown): CareerState {
                        ? (stored.nn as CareerState['nn'])
                        : DEFAULT_CAREER_STATE.nn,
       nnDate:        typeof stored.nnDate === 'string' ? stored.nnDate : '',
-      risks:         stored.risks && typeof stored.risks === 'object' ? stored.risks : {},
-      verify:        stored.verify && typeof stored.verify === 'object' ? stored.verify : {},
-      hx:            stored.hx && typeof stored.hx === 'object' ? stored.hx : {},
+      hx:            stored.hx && typeof stored.hx === 'object' ? stored.hx as Record<string, boolean> : {},
+      taskIdx:       typeof stored.taskIdx === 'number' ? stored.taskIdx : 0,
+      focusDSA:      typeof stored.focusDSA === 'string' ? stored.focusDSA : '',
+      skills:        Array.isArray(stored.skills) ? stored.skills as boolean[] : Array(15).fill(false),
       cal:           stored.cal && typeof stored.cal === 'object' ? stored.cal : {},
       sprintStart:   typeof stored.sprintStart === 'string' ? stored.sprintStart : '',
       weeklyHistory: Array.isArray(stored.weeklyHistory)
@@ -108,7 +112,7 @@ function safeReadState(raw: unknown): CareerState {
       pipeline:      Array.isArray(stored.pipeline)
                        ? stored.pipeline.filter(e => pipelineEntrySchema.safeParse(e).success)
                        : [],
-      coNotes:       stored.coNotes && typeof stored.coNotes === 'object' ? stored.coNotes : {},
+      coNotes:       stored.coNotes && typeof stored.coNotes === 'object' ? stored.coNotes as Record<string, string> : {},
     };
 
     if (process.env.NODE_ENV !== 'production') {
