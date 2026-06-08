@@ -16,6 +16,8 @@ import React, { createContext, useContext, useReducer, useCallback } from 'react
 import type { CareerState, RiskId, PipelineEntry, PipelineStatus } from '@/types';
 import type { SkillKey } from '@/data/challenges';
 import { generateId } from '@/lib/utils';
+import { hxToTaskIdx } from '@/lib/engine';
+import { HX_DEFS, HX_ORDER } from '@/data/hxDefs';
 
 // ─── Default state ────────────────────────────────────────────────────────────
 
@@ -26,6 +28,9 @@ export const DEFAULT_STATE: CareerState = {
   risks:          {},
   verify:         {},
   hx:             {},
+  taskIdx:        0,
+  focusDSA:       '',
+  skills:         Array(15).fill(false),
   cal:            {},
   sprintStart:    '',
   weeklyHistory:  [],
@@ -36,6 +41,7 @@ export const DEFAULT_STATE: CareerState = {
 // ─── Action types ─────────────────────────────────────────────────────────────
 
 export type Action =
+  // ── Legacy actions (kept until old screens are removed) ─────────────────────
   | { type: 'LOAD_STATE';        payload: CareerState }
   | { type: 'SET_SPRINT_START';  payload: string }
   | { type: 'TOGGLE_NN';        payload: 1 | 2 | 3 }
@@ -48,7 +54,14 @@ export type Action =
   | { type: 'ADD_PIPELINE';      payload: { co: string; status: PipelineStatus; notes: string } }
   | { type: 'REMOVE_PIPELINE';   payload: string }
   | { type: 'SAVE_CO_NOTE';      payload: { name: string; note: string } }
-  | { type: 'SAVE_WEEKLY';       payload: { score: number; avoid: string; change: string } };
+  | { type: 'SAVE_WEEKLY';       payload: { score: number; avoid: string; change: string } }
+  // ── New actions for locked architecture ──────────────────────────────────────
+  | { type: 'INC_METRIC';        payload: 'owned' | 'commits' | 'mocks' }
+  | { type: 'DEC_METRIC';        payload: 'owned' | 'commits' | 'mocks' }
+  | { type: 'SET_FOCUS_DSA';     payload: string }
+  | { type: 'COMPLETE_TASK' }
+  | { type: 'TOGGLE_SKILL';      payload: number }
+  | { type: 'SAVE_REVIEW';       payload: { dsa: string; avoid: string; constraint: string; change: string } };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 
@@ -57,8 +70,21 @@ const CAL_CYCLE = ['', 'good', 'partial', 'miss'] as const;
 function reducer(state: CareerState, action: Action): CareerState {
   switch (action.type) {
 
-    case 'LOAD_STATE':
-      return action.payload;
+    case 'LOAD_STATE': {
+      const loaded = action.payload;
+      // One-time migration: derive taskIdx from legacy hx if not yet set
+      const needsMigration = (loaded.taskIdx === undefined || loaded.taskIdx === 0)
+        && loaded.hx
+        && Object.values(loaded.hx).some(Boolean);
+      const migratedIdx = needsMigration ? hxToTaskIdx(loaded.hx) : (loaded.taskIdx ?? 0);
+      return {
+        ...DEFAULT_STATE,
+        ...loaded,
+        taskIdx: migratedIdx,
+        focusDSA: loaded.focusDSA ?? '',
+        skills:   loaded.skills   ?? Array(15).fill(false),
+      };
+    }
 
     case 'SET_SPRINT_START':
       return { ...state, sprintStart: action.payload };
@@ -149,6 +175,45 @@ function reducer(state: CareerState, action: Action): CareerState {
       return { ...state, weeklyHistory: history };
     }
 
+    // ── New actions ────────────────────────────────────────────────────────────
+
+    case 'INC_METRIC': {
+      const key = action.payload;
+      return { ...state, score: { ...state.score, [key]: (state.score[key] ?? 0) + 1 } };
+    }
+
+    case 'DEC_METRIC': {
+      const key = action.payload;
+      return { ...state, score: { ...state.score, [key]: Math.max(0, (state.score[key] ?? 0) - 1) } };
+    }
+
+    case 'SET_FOCUS_DSA':
+      return { ...state, focusDSA: action.payload };
+
+    case 'COMPLETE_TASK': {
+      const total = HX_ORDER.reduce((acc, k) => acc + HX_DEFS[k].tasks.length, 0);
+      return { ...state, taskIdx: Math.min(state.taskIdx + 1, total) };
+    }
+
+    case 'TOGGLE_SKILL': {
+      const updated = [...state.skills];
+      updated[action.payload] = !updated[action.payload];
+      return { ...state, skills: updated };
+    }
+
+    case 'SAVE_REVIEW': {
+      const entry = {
+        id:         generateId(),
+        date:       new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+        dsa:        action.payload.dsa,
+        avoid:      action.payload.avoid,
+        constraint: action.payload.constraint,
+        change:     action.payload.change,
+      };
+      const history = [entry, ...state.weeklyHistory].slice(0, 8);
+      return { ...state, weeklyHistory: history };
+    }
+
     default:
       return state;
   }
@@ -195,6 +260,7 @@ export function useCareerActions() {
   const { dispatch } = useCareerStore();
 
   return {
+    // ── Legacy ────────────────────────────────────────────────────────────────
     loadState:       useCallback((s: CareerState) => dispatch({ type: 'LOAD_STATE', payload: s }), [dispatch]),
     setSprintStart:  useCallback((v: string)      => dispatch({ type: 'SET_SPRINT_START', payload: v }), [dispatch]),
     toggleNN:        useCallback((n: 1 | 2 | 3)   => dispatch({ type: 'TOGGLE_NN', payload: n }), [dispatch]),
@@ -208,5 +274,13 @@ export function useCareerActions() {
     removePipeline:  useCallback((id: string)      => dispatch({ type: 'REMOVE_PIPELINE', payload: id }), [dispatch]),
     saveCoNote:      useCallback((name: string, note: string) => dispatch({ type: 'SAVE_CO_NOTE', payload: { name, note } }), [dispatch]),
     saveWeekly:      useCallback((score: number, avoid: string, change: string) => dispatch({ type: 'SAVE_WEEKLY', payload: { score, avoid, change } }), [dispatch]),
+    // ── New ───────────────────────────────────────────────────────────────────
+    incMetric:       useCallback((key: 'owned' | 'commits' | 'mocks') => dispatch({ type: 'INC_METRIC', payload: key }), [dispatch]),
+    decMetric:       useCallback((key: 'owned' | 'commits' | 'mocks') => dispatch({ type: 'DEC_METRIC', payload: key }), [dispatch]),
+    setFocusDSA:     useCallback((text: string)   => dispatch({ type: 'SET_FOCUS_DSA', payload: text }), [dispatch]),
+    completeTask:    useCallback(()                => dispatch({ type: 'COMPLETE_TASK' }), [dispatch]),
+    toggleSkill:     useCallback((i: number)       => dispatch({ type: 'TOGGLE_SKILL', payload: i }), [dispatch]),
+    saveReview:      useCallback((dsa: string, avoid: string, constraint: string, change: string) =>
+      dispatch({ type: 'SAVE_REVIEW', payload: { dsa, avoid, constraint, change } }), [dispatch]),
   };
 }

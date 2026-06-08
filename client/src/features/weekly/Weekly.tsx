@@ -195,7 +195,7 @@ export function Weekly() {
         ) : (
           <div className="space-y-3">
             {state.weeklyHistory.map((entry) => {
-              const { text, color } = scoreLabel(entry.score);
+              const { text, color } = scoreLabel(entry.score ?? 0);
               return (
                 <div
                   key={entry.id}
