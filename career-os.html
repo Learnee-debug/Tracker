@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Career OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090B;--card:#111115;--el:#18181B;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.04);
+  --t:#FAFAFA;--t2:#A1A1AA;--mu:#52525B;
+  --g:#22C55E;--a:#F59E0B;--b:#3B82F6;--p:#8B5CF6;--r:#EF4444;
+  --gb:rgba(34,197,94,0.08);--gbd:rgba(34,197,94,0.20);
+  --ab:rgba(245,158,11,0.08);--abd:rgba(245,158,11,0.20);
+  --bb:rgba(59,130,246,0.08);--bbd:rgba(59,130,246,0.20);
+  --pb:rgba(139,92,246,0.08);--pbd:rgba(139,92,246,0.20);
+  --rb:rgba(239,68,68,0.08);--rbd:rgba(239,68,68,0.20);
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--t);font-family:var(--sans);font-size:14px;min-height:100vh}
+button,input,select,textarea{font-family:var(--sans);font-size:14px}
+
+/* ── NAV ── */
+#nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;padding:0 20px;height:48px}
+.nlogo{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t);margin-right:20px;letter-spacing:.01em}
+.ntabs{display:flex;flex:1}
+.ntab{background:transparent;border:none;border-bottom:2px solid transparent;
+  color:var(--mu);font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;padding:0 14px;height:48px;cursor:pointer;transition:color .12s}
+.ntab:hover{color:var(--t2)}
+.ntab.on{color:var(--t)}
+.ntab[data-s="now"].on{border-bottom-color:var(--g)}
+.ntab[data-s="build"].on{border-bottom-color:var(--a)}
+.ntab[data-s="review"].on{border-bottom-color:var(--p)}
+.nday{font-family:var(--mono);font-size:10px;color:var(--mu);margin-left:auto}
+
+/* ── SCREENS ── */
+.scr{display:none;max-width:640px;margin:0 auto;padding:20px 20px 100px}
+.scr.on{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.cpad{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:18px 20px}
+
+/* ── SECTION HEADER ── */
+.slbl{font-family:var(--mono);font-size:10px;font-weight:400;text-transform:uppercase;
+  letter-spacing:.10em;color:var(--mu)}
+.slrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+
+/* ── ALERT ── */
+.alert{background:var(--rb);border-left:2px solid var(--r);border-radius:0 8px 8px 0;
+  padding:12px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.abadge{background:rgba(239,68,68,0.15);border:1px solid var(--rbd);color:var(--r);
+  font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 8px;
+  border-radius:5px;white-space:nowrap;flex-shrink:0}
+.atxt{font-size:13px;font-weight:500;color:var(--t)}
+
+/* ── NON-NEGOTIABLES ── */
+.nnrow{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;
+  border-bottom:1px solid var(--bd2);cursor:pointer;min-height:58px;user-select:none}
+.nnrow:last-child{border-bottom:none}
+.nnrow:active{background:rgba(255,255,255,0.02)}
+.nnbox{width:16px;height:16px;border:1px solid rgba(255,255,255,0.15);border-radius:5px;
+  flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s}
+.nnbox.on{background:var(--g);border-color:var(--g)}
+.nnbox.on::after{content:'✓';font-size:10px;color:#000;font-weight:700}
+.nnmain{font-size:13px;font-weight:500;color:var(--t);transition:all .15s;line-height:1.4}
+.nnmain.on{text-decoration:line-through;color:var(--mu)}
+.nnsub{font-size:12px;color:var(--mu);margin-top:3px}
+
+/* ── TODAY'S FOCUS ── */
+.frow{display:flex;align-items:center;gap:10px;min-height:36px}
+.fpill{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;
+  padding:0 8px;border-radius:5px;height:20px;display:inline-flex;align-items:center;
+  flex-shrink:0;border:1px solid}
+.fpill.dsa{background:var(--gb);border-color:var(--gbd);color:var(--g)}
+.fpill.build{background:var(--ab);border-color:var(--abd);color:var(--a)}
+.ftxt{font-size:13px;color:var(--t)}
+.fedit{font-size:13px;color:var(--t);background:transparent;border:none;outline:none;
+  width:100%;font-family:var(--sans)}
+
+/* ── METRIC TILES ── */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:10px;
+  padding:14px 12px 0;display:flex;flex-direction:column}
+.tnum{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1}
+.tlbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--t2);margin-top:4px}
+.tsub{font-size:11px;color:var(--mu);margin-top:2px}
+.tpace{font-size:11px;font-weight:500;margin-top:3px;margin-bottom:8px}
+.tpace.ok{color:var(--g)}
+.tpace.behind{color:var(--r)}
+.tpace.auto{color:var(--mu)}
+.tbtn{min-height:44px;border:none;border-top:1px solid var(--bd2);background:transparent;
+  cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;
+  justify-content:center;transition:background .12s;border-radius:0 0 9px 9px;width:100%}
+.tbtn:active{background:rgba(255,255,255,0.04)}
+
+/* ── STREAK ── */
+.strow{display:flex;align-items:center;justify-content:space-between}
+.stdots{display:flex;gap:7px}
+.dot{width:16px;height:16px;border-radius:50%}
+.dot.done{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35)}
+.dot.part{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35)}
+.dot.miss{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35)}
+.dot.fut{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07)}
+.stinfo{text-align:right}
+.stcount{font-family:var(--mono);font-size:11px;color:var(--mu)}
+
+/* ── BUILD ── */
+.prow{display:flex;align-items:baseline;gap:10px;padding:0 20px;margin-bottom:6px}
+.prow:first-child{padding-top:18px}
+.plbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--mu);width:80px;flex-shrink:0}
+.pval{font-family:var(--mono);font-size:12px;color:var(--t2)}
+.pval.ms{color:var(--a);font-weight:500;font-size:12px}
+.tslbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.10em;
+  color:var(--a);margin-bottom:14px}
+.tname{font-size:20px;font-weight:600;color:var(--t);line-height:1.4;margin-bottom:14px}
+.ttime{font-size:13px;color:var(--mu)}
+.dwhead{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;cursor:pointer;user-select:none}
+.dwlbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.10em;color:var(--mu)}
+.dwchev{font-size:11px;color:var(--mu);transition:transform .2s}
+.dwchev.open{transform:rotate(180deg)}
+.dwbody{display:none;padding:0 20px 18px}
+.dwbody.open{display:block}
+.dwtxt{font-size:13px;color:var(--t2);line-height:1.75}
+.tpad{padding:20px 20px 16px}
+.cbtn{width:100%;height:48px;border-radius:10px;cursor:pointer;transition:background .14s,border-color .14s;
+  margin-bottom:8px;background:var(--gb);border:1px solid var(--gbd);
+  color:var(--g);font-size:14px;font-weight:600}
+.cbtn:hover{background:rgba(34,197,94,0.14);border-color:rgba(34,197,94,0.35)}
+.cbtn:active{background:rgba(34,197,94,0.22)}
+.chint{font-size:12px;color:var(--mu);text-align:center;margin-bottom:24px}
+.bfrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.bflbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mu)}
+.bfval{font-size:12px;color:var(--mu)}
+.pbar{height:3px;background:rgba(255,255,255,0.07);border-radius:99px;margin-bottom:12px}
+.pfill{height:3px;border-radius:99px;transition:width .4s}
+.cdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ctxt{font-size:12px;color:var(--t2)}
+.done-all{text-align:center;padding:60px 20px}
+.done-title{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--g);margin-bottom:8px}
+.done-sub{font-size:13px;color:var(--t2)}
+
+/* ── REVIEW ── */
+.rslbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.10em}
+.rssub{font-size:12px;font-style:italic;color:var(--mu);margin-top:3px;margin-bottom:18px}
+.ff{margin-bottom:14px}
+.fl{font-size:13px;font-weight:500;color:var(--t2);margin-bottom:6px;display:block}
+.fl .fn{font-family:var(--mono);font-size:11px;color:var(--mu);margin-right:4px}
+.fi{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:10px 14px;color:var(--t);font-size:13px;outline:none;
+  transition:border-color .12s,box-shadow .12s}
+.fi:focus{border-color:rgba(59,130,246,0.5);box-shadow:0 0 0 3px rgba(59,130,246,0.10)}
+.fi::placeholder{color:var(--mu)}
+textarea.fi{resize:vertical;min-height:76px;line-height:1.6}
+.svbtn{width:100%;height:44px;border-radius:10px;cursor:pointer;transition:background .14s;
+  margin-top:4px;background:var(--pb);border:1px solid var(--pbd);
+  color:var(--p);font-size:14px;font-weight:600}
+.svbtn:hover{background:rgba(139,92,246,0.14)}
+.hempty{font-size:13px;color:var(--mu);text-align:center;padding:24px 0}
+.hrow{display:flex;gap:10px;align-items:baseline;padding:10px 0;
+  border-bottom:1px solid var(--bd2);font-size:12px}
+.hrow:last-child{border-bottom:none}
+.hdate{font-family:var(--mono);font-size:10px;color:var(--mu);flex-shrink:0}
+.hdsa{font-family:var(--mono);font-size:10px;color:var(--g);flex-shrink:0}
+.hprev{color:var(--t2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skhead{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;border-bottom:1px solid var(--bd2)}
+.skcat{font-size:13px;font-weight:600;color:var(--t)}
+.skscore{font-family:var(--mono);font-size:11px;font-weight:700}
+.skitem{display:flex;align-items:center;gap:12px;padding:10px 16px;
+  border-bottom:1px solid var(--bd2);cursor:pointer;min-height:44px;user-select:none}
+.skitem:last-child{border-bottom:none}
+.skitem:active{background:rgba(255,255,255,0.02)}
+.skcb{width:16px;height:16px;border:1px solid rgba(255,255,255,0.15);border-radius:5px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.skcb.on{background:var(--g);border-color:var(--g)}
+.skcb.on::after{content:'✓';font-size:10px;color:#000;font-weight:700}
+.sktxt{font-size:13px;color:var(--t);transition:all .15s}
+.sktxt.on{text-decoration:line-through;color:var(--mu)}
+.corow{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--bd2);cursor:pointer;
+  user-select:none;min-height:52px}
+.corow:last-child{border-bottom:none}
+.corow:active{background:rgba(255,255,255,0.02)}
+.coname{font-size:13px;font-weight:500;color:var(--t)}
+.coright{display:flex;align-items:center;gap:10px}
+.wpill{font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;
+  border-radius:5px;border:1px solid}
+.wb{background:var(--bb);border-color:var(--bbd);color:var(--b)}
+.wa{background:var(--ab);border-color:var(--abd);color:var(--a)}
+.cochev{font-size:11px;color:var(--mu);transition:transform .2s}
+.cochev.open{transform:rotate(180deg)}
+.codet{display:none;padding:0 18px 14px;font-size:12px;color:var(--t2);line-height:1.7;
+  border-bottom:1px solid var(--bd2)}
+.codet:last-child,.codet.last{border-bottom:none}
+.codet.open{display:block}
+.detlbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--mu);margin-bottom:3px}
+.pladd{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.plinput{flex:1;min-width:120px;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);border-radius:8px;
+  padding:9px 12px;color:var(--t);font-size:13px;outline:none}
+.plinput:focus{border-color:rgba(59,130,246,0.5)}
+.plinput::placeholder{color:var(--mu)}
+.plsel{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:9px 12px;color:var(--t);font-size:13px;outline:none;cursor:pointer}
+.plbtn{background:var(--gb);border:1px solid var(--gbd);color:var(--g);border-radius:8px;
+  padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;min-height:40px;white-space:nowrap}
+.plempty{font-size:13px;color:var(--mu);text-align:center;padding:20px 0}
+.plentry{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--bd2);font-size:13px}
+.plentry:last-child{border-bottom:none}
+.plco{font-weight:500;color:var(--t)}
+.plright{display:flex;align-items:center;gap:8px}
+.plst{font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;
+  border-radius:5px;border:1px solid}
+.plrm{background:transparent;border:none;color:var(--mu);font-size:16px;cursor:pointer;
+  padding:0 4px;line-height:1}
+.plrm:hover{color:var(--r)}
+.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:28px 0}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--el);border:1px solid rgba(255,255,255,0.12);border-radius:10px;
+  padding:10px 16px;display:flex;align-items:center;gap:14px;
+  font-size:13px;color:var(--t);z-index:200;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.tundo{background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--t);
+  font-size:12px;font-weight:600;border-radius:6px;padding:4px 10px;cursor:pointer}
+.tundo:hover{border-color:rgba(255,255,255,0.3)}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <span class="nlogo">CAREER OS</span>
+  <div class="ntabs">
+    <button class="ntab on" data-s="now"  onclick="go('now')">NOW</button>
+    <button class="ntab"    data-s="build" onclick="go('build')">BUILD</button>
+    <button class="ntab"    data-s="review" onclick="go('review')">REVIEW</button>
+  </div>
+  <span class="nday" id="nday"></span>
+</nav>
+
+<div class="scr on" id="scr-now"></div>
+<div class="scr"    id="scr-build"></div>
+<div class="scr"    id="scr-review"></div>
+
+<div class="toast" id="toast">
+  <span id="tmsg"></span>
+  <button class="tundo" onclick="undo()">Undo</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const SPRINT = 60;
+const TARGETS = {dsa:130, commits:60, mocks:8};
+
+const TASKS = [
+  {ph:'DATABASE', ms:'SCHEMA DESIGN', n:'User schema (name, email, password hash, role enum)', t:'30 min', d:'Schema file committed. Connects to Atlas. Runs without error. No hardcoded data.'},
+  {ph:'DATABASE', ms:'SCHEMA DESIGN', n:'Employer schema (company, email, description, verified flag)', t:'20 min', d:'Schema committed. Connects to Atlas without error.'},
+  {ph:'DATABASE', ms:'SCHEMA DESIGN', n:'Job schema (title, description, requirements[], salary, employerId ref)', t:'25 min', d:'Schema committed. All refs valid.'},
+  {ph:'DATABASE', ms:'SCHEMA DESIGN', n:'Application schema (userId, jobId, resumeUrl, status, appliedAt)', t:'25 min', d:'Schema committed. All refs valid. Status enum defined.'},
+  {ph:'DATABASE', ms:'DATA LAYER', n:'MongoDB Atlas cluster configured and .env connection working', t:'20 min', d:'App connects on npm start. No hardcoded strings in codebase.'},
+  {ph:'DATABASE', ms:'DATA LAYER', n:'Indexes on userId+jobId (applications) and employerId (jobs)', t:'20 min', d:'Indexes visible in Atlas UI.'},
+  {ph:'DATABASE', ms:'DATA LAYER', n:'Aggregation: top 5 jobs by application count', t:'40 min', d:'Query returns correct results. Tested in MongoDB Compass.'},
+  {ph:'BACKEND',  ms:'USER MANAGEMENT', n:'User register route with bcrypt password hash', t:'45 min', d:'POST /auth/register hashes password. User saved to DB.'},
+  {ph:'BACKEND',  ms:'USER MANAGEMENT', n:'User login route returns JWT', t:'30 min', d:'POST /auth/login returns valid JWT. Tested in Postman.'},
+  {ph:'BACKEND',  ms:'USER MANAGEMENT', n:'Employer register + login routes', t:'30 min', d:'Both routes working. Employer role set correctly.'},
+  {ph:'BACKEND',  ms:'AUTHENTICATION', n:'JWT auth middleware from scratch', t:'40 min', d:'Protected route returns 401 without token, 200 with valid token. req.user populated.'},
+  {ph:'BACKEND',  ms:'AUTHENTICATION', n:'Role-based middleware (user vs employer)', t:'30 min', d:'Employer-only routes return 403 for user role.'},
+  {ph:'BACKEND',  ms:'CORE APIS', n:'Job CRUD routes (create, read, update, delete)', t:'60 min', d:'All 4 operations tested and working in Postman.'},
+  {ph:'BACKEND',  ms:'CORE APIS', n:'Job listing with filters and pagination', t:'45 min', d:'/jobs?page=1&limit=10 returns correct paginated results.'},
+  {ph:'BACKEND',  ms:'CORE APIS', n:'Submit job application endpoint', t:'40 min', d:'POST /apply saves application with correct status.'},
+  {ph:'BACKEND',  ms:'CORE APIS', n:'Employer: view applications and update status', t:'40 min', d:'GET and PATCH both working correctly.'},
+  {ph:'INTEGRATION', ms:'FILE HANDLING', n:'Resume file upload using Multer', t:'50 min', d:'File saved to storage. URL stored in application document.'},
+  {ph:'INTEGRATION', ms:'FILE HANDLING', n:'Email notification on application using Nodemailer', t:'45 min', d:'Email sent to employer on new application.'},
+  {ph:'INTEGRATION', ms:'RELIABILITY', n:'Input validation on all routes using Zod', t:'50 min', d:'Invalid inputs return 400 with clear error messages.'},
+  {ph:'INTEGRATION', ms:'RELIABILITY', n:'Centralized error handler middleware', t:'30 min', d:'All unhandled errors caught. Consistent error response shape.'},
+  {ph:'INTEGRATION', ms:'RELIABILITY', n:'Rate limiting middleware', t:'30 min', d:'Requests above limit return 429.'},
+  {ph:'FRONTEND', ms:'AUTH UI', n:'Login and Register UI with validation and error states', t:'60 min', d:'Forms submit. Errors displayed. Redirects on success.'},
+  {ph:'FRONTEND', ms:'CORE SCREENS', n:'Job listing page with search and filter', t:'60 min', d:'Jobs load. Search and filters work. Pagination functional.'},
+  {ph:'FRONTEND', ms:'CORE SCREENS', n:'Job detail page', t:'30 min', d:'All fields displayed. Apply button visible.'},
+  {ph:'FRONTEND', ms:'CORE SCREENS', n:'User dashboard: applied jobs and statuses', t:'45 min', d:'Lists all applications with current status.'},
+  {ph:'FRONTEND', ms:'CORE SCREENS', n:'Employer dashboard: postings and applicants', t:'45 min', d:'Employer sees their jobs and applicant list.'},
+  {ph:'FRONTEND', ms:'CORE SCREENS', n:'Application submit and resume upload UI', t:'60 min', d:'File upload works. Confirmation shown after submission.'},
+  {ph:'DEPLOYMENT', ms:'GO LIVE', n:'Backend deployed on Render or Railway', t:'45 min', d:'API accessible at public URL. No errors.'},
+  {ph:'DEPLOYMENT', ms:'GO LIVE', n:'Frontend deployed on Vercel', t:'30 min', d:'App loads from Vercel URL. API calls work.'},
+  {ph:'DEPLOYMENT', ms:'GO LIVE', n:'Environment variables set in production', t:'20 min', d:'No hardcoded strings. App works end-to-end.'},
+  {ph:'DEPLOYMENT', ms:'GO LIVE', n:'README complete with setup, live link, and tech stack', t:'30 min', d:'Setup instructions clear. Live link works. Tech stack listed.'},
+];
+
+const COS = [
+  {n:'Morgan Stanley', f:'Hackerrank — 2 mediums, 45 min', ts:'DSA + CS depth (OS, networking, DB) + behavioral STAR', w:'SEP-JAN', wc:'b'},
+  {n:"Lowe's", f:'Direct interview', ts:'MERN stack + project depth + live walkthrough', w:'AUG-NOV', wc:'a'},
+  {n:'Atlassian', f:'Custom coding + virtual onsite', ts:'DSA + product sense + values alignment', w:'OCT-DEC', wc:'b'},
+  {n:'Adobe', f:'Hackerrank — 3 mediums', ts:'DSA + fullstack Q&A + 3 technical rounds', w:'SEP-DEC', wc:'a'},
+  {n:'Razorpay', f:'Take-home + 2 technical rounds', ts:'Backend logic + scalability + system design', w:'AUG-DEC', wc:'a'},
+  {n:'CRED', f:'Hiring challenge + 3 rounds', ts:'DSA + product thinking + culture fit', w:'SEP-DEC', wc:'b'},
+  {n:'Walmart Labs', f:'CodeHers + 2 technical rounds', ts:'DSA + SQL + OOP design + project walkthrough', w:'SEP-JAN', wc:'b'},
+  {n:'Goldman Sachs', f:'Hard OA + 3 technical rounds', ts:'Hard DSA + CS depth + system design concepts', w:'AUG-OCT', wc:'a'},
+];
+
+const SCATS = ['DSA','JAVASCRIPT','REACT','NODE / EXPRESS','FULL STACK'];
+const SKILLS = [
+  'Implement binary search from scratch — no hints, correct first try',
+  'Reverse a linked list iteratively and recursively from memory',
+  'Write BFS on a graph and state time + space complexity',
+  'Implement debounce(fn, delay) from scratch without looking it up',
+  'Explain the event loop: microtask vs macrotask with a code example',
+  'Implement a basic Promise with .then() — no libraries, from scratch',
+  'Build useFetch hook (loading, error, data states) from a blank file',
+  'Explain why React re-renders and name two ways to prevent unnecessary ones',
+  'Build a protected route that redirects unauthenticated users',
+  'Build a working CRUD API with middleware and error handler under 90 min',
+  'Implement JWT auth middleware from scratch — no tutorial or docs open',
+  'Handle async errors globally without per-route try-catch blocks',
+  'Explain CORS — what it is, why it exists, how to configure it in Express',
+  'Trace the full auth flow: register → login → token → protected route',
+  'Design a job board schema: users, employers, jobs, applications with relationships',
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const DEF = {
+  scr:'now', sprintDay:1,
+  nn:[false,false,false],
+  metrics:{dsa:0, commits:0, mocks:0},
+  focusDSA:'Two Pointers — 2 problems from Blind 75',
+  taskIdx:0, dwOpen:true,
+  history:[], // [{day, status:'done'|'part'|'miss'}]
+  streak:0, best:0,
+  skills:Array(15).fill(false),
+  pipeline:[], reviews:[], exCo:-1,
+};
+let S = {...DEF};
+let _timer = null, _undo = null;
+
+function load(){try{const d=localStorage.getItem('cos');if(d)S={...DEF,...JSON.parse(d)}}catch(e){}}
+function save(){try{localStorage.setItem('cos',JSON.stringify(S))}catch(e){}}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const nnCount = () => S.nn.filter(Boolean).length;
+const hiPct = () => Math.round((S.taskIdx / TASKS.length) * 100);
+const curTask = () => S.taskIdx < TASKS.length ? TASKS[S.taskIdx] : null;
+
+function pace(key){
+  const exp = Math.round((TARGETS[key]/SPRINT)*S.sprintDay);
+  const act = S.metrics[key];
+  if(act >= exp) return {txt:'on pace', cls:'ok'};
+  const diff = exp - act;
+  return {txt:`${diff} behind`, cls:'behind'};
+}
+
+function shortName(s){ return s.length>34 ? s.slice(0,32)+'…':s; }
+
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function get7Days(){
+  const r=[];
+  for(let i=6;i>=0;i--){
+    const d = S.sprintDay - i;
+    if(d<1){r.push('fut');continue;}
+    if(d===S.sprintDay){
+      const c=nnCount();
+      r.push(c===3?'done':c>0?'part':'miss');
+    } else {
+      const h=S.history.find(x=>x.day===d);
+      r.push(h?h.status:'miss');
+    }
+  }
+  return r;
+}
+
+function statusColor(s){
+  const m={Targeting:'var(--mu)',Applied:'var(--b)',OA:'var(--a)',Interview:'var(--p)',Offer:'var(--g)',Rejected:'var(--r)'};
+  return m[s]||'var(--mu)';
+}
+
+function skillScore(ci){
+  return S.skills.slice(ci*3,(ci+1)*3).filter(Boolean).length;
+}
+
+function totalSkills(){return S.skills.filter(Boolean).length;}
+
+function scoreColor(n,of){
+  const r=n/of;
+  if(r<=0.33) return 'var(--r)';
+  if(r<=0.67) return 'var(--a)';
+  if(r<1) return 'var(--b)';
+  return 'var(--g)';
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function go(name){
+  S.scr=name;
+  document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(e=>e.classList.remove('on'));
+  document.getElementById('scr-'+name).classList.add('on');
+  document.querySelector('.ntab[data-s="'+name+'"]').classList.add('on');
+  render(); save();
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function toast(msg, undoData){
+  _undo=undoData;
+  document.getElementById('tmsg').textContent=msg;
+  const el=document.getElementById('toast');
+  el.classList.add('show');
+  if(_timer) clearTimeout(_timer);
+  _timer=setTimeout(()=>{el.classList.remove('show');_undo=null;},3000);
+}
+
+function undo(){
+  if(!_undo) return;
+  S.metrics[_undo.k]=_undo.v;
+  document.getElementById('toast').classList.remove('show');
+  clearTimeout(_timer);_undo=null;
+  save(); rNow();
+}
+
+// ══════════════════════════════════════════
+// EVENTS
+// ══════════════════════════════════════════
+function toggleNN(i){
+  S.nn[i]=!S.nn[i];
+  save(); rNow();
+}
+
+function incMetric(k){
+  const prev=S.metrics[k];
+  S.metrics[k]++;
+  const lbl={dsa:'DSA OWNED',commits:'COMMITS',mocks:'MOCKS'}[k];
+  toast(lbl+' +1',{k,v:prev});
+  save(); rNow();
+}
+
+function completeTask(){
+  if(S.taskIdx>=TASKS.length) return;
+  // Save today to streak history
+  const c=nnCount();
+  const existing=S.history.find(h=>h.day===S.sprintDay);
+  const status=c===3?'done':c>0?'part':'miss';
+  if(!existing) S.history.push({day:S.sprintDay, status});
+  // Advance
+  S.taskIdx++;
+  S.dwOpen=true;
+  save(); rBuild(); rNow();
+}
+
+function toggleDW(){
+  S.dwOpen=!S.dwOpen;
+  save(); rBuild();
+}
+
+function toggleSkill(i){
+  S.skills[i]=!S.skills[i];
+  save(); rReview();
+}
+
+function toggleCo(i){
+  S.exCo=S.exCo===i?-1:i;
+  save(); rReview();
+}
+
+function blurFocus(){
+  const el=document.getElementById('fdsa');
+  if(el){S.focusDSA=el.value;save();}
+}
+
+function addPL(){
+  const co=document.getElementById('plco');
+  const st=document.getElementById('plst');
+  if(!co||!co.value.trim()) return;
+  S.pipeline.push({co:co.value.trim(),st:st.value,id:Date.now()});
+  co.value='';
+  save(); rReview();
+}
+
+function rmPL(id){
+  S.pipeline=S.pipeline.filter(p=>p.id!==id);
+  save(); rReview();
+}
+
+function saveReview(){
+  const q1=document.getElementById('rq1');
+  const q2=document.getElementById('rq2');
+  const q3=document.getElementById('rq3');
+  const q4=document.getElementById('rq4');
+  if(!q1||(!q1.value&&!q2.value)) return;
+  S.reviews.unshift({
+    date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'}),
+    dsa:q1.value||'0', avoided:q2.value||'', constraint:q3.value||'', change:q4.value||''
+  });
+  save(); rReview();
+}
+
+// ══════════════════════════════════════════
+// RENDER: NOW
+// ══════════════════════════════════════════
+function rNow(){
+  const nc=nnCount();
+  const t=curTask();
+
+  const alertH = nc<3 ? `
+    <div class="alert">
+      <span class="abadge">${nc}/3</span>
+      <span class="atxt">Nothing done yet. Open LeetCode and start.</span>
+    </div>` : '';
+
+  const nnDefs=[
+    {key:'DSA', sub:'Solve one problem out loud'},
+    {key:'COMMIT', sub:'Push working code'},
+    {key:'LOG', sub:'Record one thing you cannot yet re-solve'},
+  ];
+  const nnH=nnDefs.map((x,i)=>`
+    <div class="nnrow" onclick="toggleNN(${i})">
+      <div class="nnbox ${S.nn[i]?'on':''}"></div>
+      <div>
+        <div class="nnmain ${S.nn[i]?'on':''}">
+          <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--mu);letter-spacing:.07em;margin-right:8px">${x.key}</span>${x.sub}
+        </div>
+      </div>
+    </div>`).join('');
+
+  const buildFocus=t?esc(t.n):'All tasks complete';
+
+  const focusH=`
+    <div class="frow">
+      <span class="fpill dsa">DSA</span>
+      <input class="fedit" id="fdsa" value="${esc(S.focusDSA)}" 
+        placeholder="Today's DSA focus..." onblur="blurFocus()">
+    </div>
+    <div class="frow">
+      <span class="fpill build">BUILD</span>
+      <span class="ftxt">${buildFocus}</span>
+    </div>`;
+
+  const TDEFS=[
+    {k:'dsa',lbl:'DSA OWNED',c:'var(--g)'},
+    {k:'commits',lbl:'COMMITS',c:'var(--a)'},
+    {k:'mocks',lbl:'MOCKS',c:'var(--b)'},
+  ];
+  const tilesH=TDEFS.map(td=>{
+    const p=pace(td.k);
+    return `
+      <div class="tile" style="border-top:2px solid ${td.c}">
+        <div class="tnum" style="color:${td.c}">${S.metrics[td.k]}</div>
+        <div class="tlbl">${td.lbl}</div>
+        <div class="tsub">/ ${TARGETS[td.k]} target</div>
+        <div class="tpace ${p.cls}">${p.txt}</div>
+        <button class="tbtn" style="color:${td.c}" onclick="incMetric('${td.k}')">+1</button>
+      </div>`;
+  }).join('')+`
+    <div class="tile" style="border-top:2px solid var(--p)">
+      <div class="tnum" style="color:var(--p)">${hiPct()}%</div>
+      <div class="tlbl">HIREONYX</div>
+      <div class="tsub">project %</div>
+      <div class="tpace auto">auto</div>
+      <div style="min-height:44px;border-top:1px solid var(--bd2);display:flex;
+        align-items:center;justify-content:center;font-size:12px;color:var(--mu)">—</div>
+    </div>`;
+
+  const dots=get7Days().map(d=>`<div class="dot ${d}"></div>`).join('');
+  const stLabel=S.streak>0?`${S.streak}-day streak · best: ${S.best}`:`Day ${S.sprintDay} of ${SPRINT}`;
+
+  document.getElementById('scr-now').innerHTML=`
+    ${alertH}
+    <div style="margin-bottom:20px">
+      <div class="slrow"><span class="slbl">Non-Negotiables</span>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--b)">${nc}/3</span>
+      </div>
+      <div class="card">${nnH}</div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="slrow"><span class="slbl">Today's Focus</span></div>
+      <div class="cpad" style="display:flex;flex-direction:column;gap:4px">${focusH}</div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="tiles">${tilesH}</div>
+    </div>
+    <div class="cpad">
+      <div class="strow">
+        <div class="stdots">${dots}</div>
+        <div class="stinfo"><div class="stcount">${stLabel}</div></div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// RENDER: BUILD
+// ══════════════════════════════════════════
+function rBuild(){
+  const task=curTask();
+  if(!task){
+    document.getElementById('scr-build').innerHTML=`
+      <div class="done-all">
+        <div class="done-title">HIREONYX COMPLETE</div>
+        <div class="done-sub">All ${TASKS.length} tasks finished. Deploy and document.</div>
+      </div>`;
+    return;
+  }
+  const pct=hiPct();
+  document.getElementById('scr-build').innerHTML=`
+    <div class="card" style="margin-bottom:20px">
+      <div class="prow"><span class="plbl">PHASE</span><span class="pval">${task.ph}</span></div>
+      <div class="prow" style="margin-bottom:0"><span class="plbl">MILESTONE</span>
+        <span class="pval ms">${task.ms}</span></div>
+      <div style="border-top:1px solid var(--bd2);margin-top:16px"></div>
+      <div class="tpad">
+        <div class="tslbl">NEXT TASK</div>
+        <div class="tname">${esc(task.n)}</div>
+        <div class="ttime">⏱ ${task.t}</div>
+      </div>
+      <div class="dwhead" onclick="toggleDW()">
+        <span class="dwlbl">DONE WHEN</span>
+        <span class="dwchev ${S.dwOpen?'open':''}">▾</span>
+      </div>
+      <div class="dwbody ${S.dwOpen?'open':''}">
+        <div class="dwtxt">${esc(task.d)}</div>
+      </div>
+    </div>
+    <button class="cbtn" onclick="completeTask()">Mark Complete</button>
+    <div class="chint">Next task appears automatically</div>
+    <div>
+      <div class="bfrow">
+        <span class="bflbl">HIREONYX</span>
+        <span class="bfval">${pct}% · ${S.taskIdx} of ${TASKS.length}</span>
+      </div>
+      <div class="pbar"><div class="pfill" style="width:${pct}%;background:var(--a)"></div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="cdot" style="background:var(--r)"></div>
+        <span class="ctxt">Last commit: never</span>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// RENDER: REVIEW
+// ══════════════════════════════════════════
+function rReview(){
+  // History
+  const histH=S.reviews.length===0
+    ?`<div class="hempty">No reviews saved yet.</div>`
+    :S.reviews.slice(0,6).map(r=>`
+      <div class="hrow">
+        <span class="hdate">${r.date}</span>
+        <span class="hdsa">${r.dsa} owned</span>
+        <span class="hprev">${esc(r.avoided.slice(0,60))}${r.avoided.length>60?'…':''}</span>
+      </div>`).join('');
+
+  // Skills
+  const ts=totalSkills();
+  let skillH='';
+  SCATS.forEach((cat,ci)=>{
+    const sc=skillScore(ci);
+    const cc=scoreColor(sc,3);
+    const items=[0,1,2].map(j=>{
+      const idx=ci*3+j;
+      const on=S.skills[idx];
+      return `<div class="skitem" onclick="toggleSkill(${idx})">
+        <div class="skcb ${on?'on':''}"></div>
+        <span class="sktxt ${on?'on':''}">${esc(SKILLS[idx])}</span>
+      </div>`;
+    }).join('');
+    skillH+=`<div class="card" style="margin-bottom:8px">
+      <div class="skhead">
+        <span class="skcat">${cat}</span>
+        <span class="skscore" style="color:${cc}">${sc}/3</span>
+      </div>${items}</div>`;
+  });
+
+  // Companies (expandable list, not table)
+  const cosH=COS.map((c,i)=>{
+    const ex=S.exCo===i;
+    return `
+      <div>
+        <div class="corow" onclick="toggleCo(${i})">
+          <span class="coname">${c.n}</span>
+          <div class="coright">
+            <span class="wpill w${c.wc}">${c.w}</span>
+            <span class="cochev ${ex?'open':''}">▾</span>
+          </div>
+        </div>
+        <div class="codet ${ex?'open':''} ${i===COS.length-1?'last':''}">
+          <div class="detlbl">FORMAT</div>
+          <div style="margin-bottom:10px">${c.f}</div>
+          <div class="detlbl">WHAT THEY TEST</div>
+          <div>${c.ts}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Pipeline
+  const plH=S.pipeline.length===0
+    ?`<div class="plempty">No applications yet. Window opens Aug–Nov.</div>`
+    :S.pipeline.map(p=>`
+      <div class="plentry">
+        <span class="plco">${esc(p.co)}</span>
+        <div class="plright">
+          <span class="plst" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:${statusColor(p.st)}">${p.st}</span>
+          <button class="plrm" onclick="rmPL(${p.id})">×</button>
+        </div>
+      </div>`).join('');
+
+  document.getElementById('scr-review').innerHTML=`
+    <div>
+      <div class="rslbl" style="color:var(--p)">WEEKLY RETROSPECTIVE</div>
+      <div class="rssub">Sunday only. Honest answers. No scoring.</div>
+      
+      <div class="ff"><label class="fl"><span class="fn">01 //</span>DSA owned this week — re-solvable without hints</label>
+        <input id="rq1" class="fi" type="number" placeholder="How many can you solve right now?"></div>
+      <div class="ff"><label class="fl"><span class="fn">02 //</span>What did you avoid — name the exact things</label>
+        <textarea id="rq2" class="fi" placeholder="Be specific. What exact tasks did you skip?"></textarea></div>
+      <div class="ff"><label class="fl"><span class="fn">03 //</span>Real constraint — not the excuse</label>
+        <textarea id="rq3" class="fi" placeholder="What actually stopped you?"></textarea></div>
+      <div class="ff"><label class="fl"><span class="fn">04 //</span>One concrete change next week</label>
+        <textarea id="rq4" class="fi" style="min-height:60px" placeholder="Specific. Actionable. One thing."></textarea></div>
+      
+      <button class="svbtn" onclick="saveReview()">Save Review</button>
+      
+      <div style="margin-top:20px;margin-bottom:8px"><span class="slbl">HISTORY</span></div>
+      <div class="card">${histH}</div>
+      
+      <div class="divider"></div>
+      
+      <div class="slrow" style="margin-bottom:6px">
+        <span class="rslbl">SKILL CHECK</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${scoreColor(ts,15)}">${ts}/15</span>
+      </div>
+      <div style="font-size:12px;color:var(--mu);font-style:italic;margin-bottom:14px">Can you do this right now without looking anything up?</div>
+      ${skillH}
+      
+      <div class="divider"></div>
+      
+      <div class="rslbl" style="margin-bottom:4px">COMPANIES</div>
+      <div style="font-size:12px;color:var(--mu);font-style:italic;margin-bottom:10px">Reference only. Not updated weekly.</div>
+      <div class="card" style="margin-bottom:20px">${cosH}</div>
+      
+      <div style="margin-bottom:10px"><span class="slbl">MY PIPELINE</span></div>
+      <div class="pladd">
+        <input id="plco" class="plinput" placeholder="Company name" type="text">
+        <select id="plst" class="plsel">
+          <option>Targeting</option><option>Applied</option><option>OA</option>
+          <option>Interview</option><option>Offer</option><option>Rejected</option>
+        </select>
+        <button class="plbtn" onclick="addPL()">Add</button>
+      </div>
+      <div class="card">${plH}</div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function render(){
+  document.getElementById('nday').textContent='Day '+S.sprintDay+' of '+SPRINT;
+  rNow(); rBuild(); rReview();
+}
+
+load(); render();
+</script>
+</body>
+</html>
