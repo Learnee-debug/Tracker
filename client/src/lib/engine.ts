@@ -92,38 +92,6 @@ export function pace(
   return { txt: `${expected - value} behind`, cls: 'behind' };
 }
 
-// ─── calcStreak ───────────────────────────────────────────────────────────────
-// Returns the current consecutive "good" day streak.
-//
-// v3 had two bugs:
-//   1. A first loop that computed a result and immediately discarded it.
-//   2. The actual loop broke on empty days (''), which means any unlogged
-//      day (including today, before you mark it) reset the streak to 0.
-//
-// Fix: iterate backward from sprintDay, skip unlogged days (continue),
-// stop only on 'partial' or 'miss' (genuine streak-breakers).
-
-export function calcStreak(
-  cal: CareerState['cal'],
-  sprintDay: number
-): number {
-  let streak = 0;
-  for (let i = sprintDay; i >= 1; i--) {
-    const state: CalDayState = cal[`d${i}`] ?? '';
-    if (state === 'good') {
-      streak++;
-    } else if (state === '') {
-      // Unlogged day — skip it, don't break the streak.
-      // Today is always unlogged until the user marks it.
-      continue;
-    } else {
-      // 'partial' or 'miss' ends the streak.
-      break;
-    }
-  }
-  return streak;
-}
-
 // ─── getSprintDay ─────────────────────────────────────────────────────────────
 // Returns the current sprint day (1–60) or null if sprint hasn't started.
 // Pure — takes the sprint start string rather than reading from state directly.

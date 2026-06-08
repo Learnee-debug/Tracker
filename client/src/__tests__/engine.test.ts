@@ -8,7 +8,6 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  calcStreak,
   getSprintDay,
   hxToTaskIdx,
   get7Days,
@@ -22,76 +21,6 @@ import type { CareerState } from '@/types';
 function makeHx(checked: string[]): CareerState['hx'] {
   return Object.fromEntries(checked.map((k) => [k, true]));
 }
-
-function makeCal(entries: Record<string, 'good' | 'partial' | 'miss'>): CareerState['cal'] {
-  return entries;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// calcStreak
-// ─────────────────────────────────────────────────────────────────────────────
-
-describe('calcStreak', () => {
-  it('returns 0 when no days are logged', () => {
-    expect(calcStreak({}, 10)).toBe(0);
-  });
-
-  it('returns 0 when the sprint has not started (sprintDay = 0)', () => {
-    const cal = makeCal({ d1: 'good', d2: 'good' });
-    expect(calcStreak(cal, 0)).toBe(0);
-  });
-
-  it('counts consecutive good days from current day backward', () => {
-    const cal = makeCal({ d1: 'good', d2: 'good', d3: 'good' });
-    expect(calcStreak(cal, 3)).toBe(3);
-  });
-
-  it('stops counting at a miss', () => {
-    const cal = makeCal({ d1: 'good', d2: 'miss', d3: 'good', d4: 'good' });
-    expect(calcStreak(cal, 4)).toBe(2);
-  });
-
-  it('stops counting at a partial', () => {
-    const cal = makeCal({ d1: 'good', d2: 'partial', d3: 'good' });
-    expect(calcStreak(cal, 3)).toBe(1);
-  });
-
-  // ── THE KEY BUG FIX TEST ──────────────────────────────────────────────────
-  // v3 broke streak to 0 when today's day was unlogged (the most common case:
-  // it's morning and you haven't marked today yet). This test verifies the fix.
-
-  it('skips unlogged days — streak is not broken by empty calendar slots', () => {
-    // Days 1–4 are good. Day 5 (today) is unlogged.
-    const cal = makeCal({ d1: 'good', d2: 'good', d3: 'good', d4: 'good' });
-    // Sprint day is 5 but d5 is empty — should still return 4
-    expect(calcStreak(cal, 5)).toBe(4);
-  });
-
-  it('skips multiple unlogged days to find the streak', () => {
-    // Days 1–3 are good. Days 4 and 5 are unlogged (weekend, no entry).
-    const cal = makeCal({ d1: 'good', d2: 'good', d3: 'good' });
-    expect(calcStreak(cal, 5)).toBe(3);
-  });
-
-  it('returns 0 when the most recent logged day was a miss', () => {
-    const cal = makeCal({ d1: 'good', d2: 'good', d3: 'miss' });
-    expect(calcStreak(cal, 4)).toBe(0);
-  });
-
-  it('handles sprint day 1 with unlogged day correctly', () => {
-    expect(calcStreak({}, 1)).toBe(0);
-  });
-
-  it('handles sprint day 1 with a good day', () => {
-    const cal = makeCal({ d1: 'good' });
-    expect(calcStreak(cal, 1)).toBe(1);
-  });
-
-  it('returns 0 if all days are partial', () => {
-    const cal = makeCal({ d1: 'partial', d2: 'partial', d3: 'partial' });
-    expect(calcStreak(cal, 3)).toBe(0);
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // getSprintDay

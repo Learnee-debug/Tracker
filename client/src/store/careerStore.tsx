@@ -39,14 +39,11 @@ export const DEFAULT_STATE: CareerState = {
 
 export type Action =
   | { type: 'LOAD_STATE';        payload: CareerState }
-  | { type: 'SET_SPRINT_START';  payload: string }
   | { type: 'TOGGLE_NN';         payload: 1 | 2 | 3 }
   | { type: 'RESET_NN_IF_NEW_DAY' }
   | { type: 'ADD_PIPELINE';      payload: { co: string; status: PipelineStatus; notes: string } }
   | { type: 'REMOVE_PIPELINE';   payload: string }
-  | { type: 'SAVE_CO_NOTE';      payload: { name: string; note: string } }
   | { type: 'INC_METRIC';        payload: 'owned' | 'commits' | 'mocks' }
-  | { type: 'DEC_METRIC';        payload: 'owned' | 'commits' | 'mocks' }
   | { type: 'SET_FOCUS_DSA';     payload: string }
   | { type: 'COMPLETE_TASK' }
   | { type: 'TOGGLE_SKILL';      payload: number }
@@ -72,9 +69,6 @@ function reducer(state: CareerState, action: Action): CareerState {
         skills:   loaded.skills   ?? Array(15).fill(false),
       };
     }
-
-    case 'SET_SPRINT_START':
-      return { ...state, sprintStart: action.payload };
 
     case 'TOGGLE_NN': {
       const key = `d${action.payload}` as 'd1' | 'd2' | 'd3';
@@ -116,20 +110,9 @@ function reducer(state: CareerState, action: Action): CareerState {
         pipeline: state.pipeline.filter((e) => e.id !== action.payload),
       };
 
-    case 'SAVE_CO_NOTE':
-      return {
-        ...state,
-        coNotes: { ...state.coNotes, [action.payload.name]: action.payload.note },
-      };
-
     case 'INC_METRIC': {
       const key = action.payload;
       return { ...state, score: { ...state.score, [key]: (state.score[key] ?? 0) + 1 } };
-    }
-
-    case 'DEC_METRIC': {
-      const key = action.payload;
-      return { ...state, score: { ...state.score, [key]: Math.max(0, (state.score[key] ?? 0) - 1) } };
     }
 
     case 'SET_FOCUS_DSA':
@@ -206,14 +189,11 @@ export function useCareerActions() {
 
   return {
     loadState:       useCallback((s: CareerState)  => dispatch({ type: 'LOAD_STATE', payload: s }), [dispatch]),
-    setSprintStart:  useCallback((v: string)        => dispatch({ type: 'SET_SPRINT_START', payload: v }), [dispatch]),
     toggleNN:        useCallback((n: 1 | 2 | 3)    => dispatch({ type: 'TOGGLE_NN', payload: n }), [dispatch]),
     resetNNIfNewDay: useCallback(()                 => dispatch({ type: 'RESET_NN_IF_NEW_DAY' }), [dispatch]),
     addPipeline:     useCallback((co: string, status: PipelineStatus, notes: string) => dispatch({ type: 'ADD_PIPELINE', payload: { co, status, notes } }), [dispatch]),
     removePipeline:  useCallback((id: string)       => dispatch({ type: 'REMOVE_PIPELINE', payload: id }), [dispatch]),
-    saveCoNote:      useCallback((name: string, note: string) => dispatch({ type: 'SAVE_CO_NOTE', payload: { name, note } }), [dispatch]),
     incMetric:       useCallback((key: 'owned' | 'commits' | 'mocks') => dispatch({ type: 'INC_METRIC', payload: key }), [dispatch]),
-    decMetric:       useCallback((key: 'owned' | 'commits' | 'mocks') => dispatch({ type: 'DEC_METRIC', payload: key }), [dispatch]),
     setFocusDSA:     useCallback((text: string)    => dispatch({ type: 'SET_FOCUS_DSA', payload: text }), [dispatch]),
     completeTask:    useCallback(()                 => dispatch({ type: 'COMPLETE_TASK' }), [dispatch]),
     toggleSkill:     useCallback((i: number)        => dispatch({ type: 'TOGGLE_SKILL', payload: i }), [dispatch]),
