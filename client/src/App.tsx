@@ -7,25 +7,20 @@ import { stateApi } from '@/api/state';
 import { Header } from '@/components/layout/Header';
 import { Tabs, type TabId } from '@/components/layout/Tabs';
 import { AuthPage } from '@/features/auth/AuthPage';
-import { Today }    from '@/features/today/Today';
-import { Calendar } from '@/features/calendar/Calendar';
-import { Risk }     from '@/features/risk/Risk';
-import { Verify }   from '@/features/verify/Verify';
-import { HireOnyx } from '@/features/hireonyx/HireOnyx';
-import { Matrix }   from '@/features/matrix/Matrix';
-import { Weekly }   from '@/features/weekly/Weekly';
-import { Score }    from '@/features/score/Score';
+import { Now }    from '@/features/now/Now';
+import { Build }  from '@/features/build/Build';
+import { Review } from '@/features/review/Review';
 
 // ─── Inner app — rendered only when authenticated ─────────────────────────────
 
-const VALID_TABS: TabId[] = ['today', 'calendar', 'risk', 'verify', 'hireonyx', 'matrix', 'weekly', 'score'];
+const VALID_TABS: TabId[] = ['now', 'build', 'review'];
 
 function readStoredTab(): TabId {
   try {
     const stored = localStorage.getItem('career-os-tab') as TabId | null;
-    return stored && VALID_TABS.includes(stored) ? stored : 'today';
+    return stored && VALID_TABS.includes(stored) ? stored : 'now';
   } catch {
-    return 'today';
+    return 'now';
   }
 }
 
@@ -39,12 +34,10 @@ function AppInner() {
     try { localStorage.setItem('career-os-tab', id); } catch {}
   }
 
-  // ── Load state from server on mount ─────────────────────────────────────────
-  // React Query v5 removed onSuccess — use useEffect watching the data instead.
   const { data: serverState, isLoading: stateLoading } = useQuery({
     queryKey:  ['career-state'],
     queryFn:   stateApi.get,
-    staleTime: Infinity,            // never auto-refetch — we own the state
+    staleTime: Infinity,
     gcTime:    Infinity,
   });
 
@@ -55,7 +48,6 @@ function AppInner() {
     }
   }, [serverState, loadState, resetNNIfNewDay]);
 
-  // ── Background sync ──────────────────────────────────────────────────────────
   const syncStatus = useSyncState(state, !stateLoading);
 
   if (stateLoading) {
@@ -70,15 +62,10 @@ function AppInner() {
     <div className="min-h-screen flex flex-col">
       <Header syncStatus={syncStatus} />
       <Tabs active={tab} onChange={handleTabChange} />
-      <main className="flex-1 px-8 py-6 max-w-[1440px] mx-auto w-full">
-        {tab === 'today'    && <Today />}
-        {tab === 'calendar' && <Calendar />}
-        {tab === 'risk'     && <Risk />}
-        {tab === 'verify'   && <Verify />}
-        {tab === 'hireonyx' && <HireOnyx />}
-        {tab === 'matrix'   && <Matrix />}
-        {tab === 'weekly'   && <Weekly />}
-        {tab === 'score'    && <Score />}
+      <main className="flex-1 max-w-[640px] mx-auto w-full px-5 py-5 pb-24">
+        {tab === 'now'    && <Now />}
+        {tab === 'build'  && <Build />}
+        {tab === 'review' && <Review />}
       </main>
     </div>
   );

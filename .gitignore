@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+!client/src/**/build/
 .env
 .env.local
 .env.*.local
@@ -9,3 +10,5 @@ build/
 Thumbs.db
 coverage/
 .nyc_output/
+
+.vercel

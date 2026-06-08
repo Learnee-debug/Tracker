@@ -1,25 +1,24 @@
 import { cn } from '@/lib/utils';
 
-export type TabId = 'today' | 'calendar' | 'risk' | 'verify' | 'hireonyx' | 'matrix' | 'weekly' | 'score';
+export type TabId = 'now' | 'build' | 'review';
 
-interface Tab { id: TabId; label: string; }
+interface Tab {
+  id: TabId;
+  label: string;
+  activeColor: string;
+}
 
 const TABS: Tab[] = [
-  { id: 'today',    label: 'Today'    },
-  { id: 'calendar', label: 'Calendar' },
-  { id: 'risk',     label: 'Risk'     },
-  { id: 'verify',   label: 'Verify'   },
-  { id: 'hireonyx', label: 'HireOnyx' },
-  { id: 'matrix',   label: 'Matrix'   },
-  { id: 'weekly',   label: 'Weekly'   },
-  { id: 'score',    label: 'Score'    },
+  { id: 'now',    label: 'NOW',    activeColor: 'var(--green)'  },
+  { id: 'build',  label: 'BUILD',  activeColor: 'var(--amber)'  },
+  { id: 'review', label: 'REVIEW', activeColor: 'var(--purple)' },
 ];
 
 interface TabsProps { active: TabId; onChange: (id: TabId) => void; }
 
 export function Tabs({ active, onChange }: TabsProps) {
   return (
-    <nav className="flex border-b border-border bg-bg-2 px-2 overflow-x-auto shrink-0">
+    <nav className="flex border-b border-border bg-bg-2 px-2 shrink-0">
       {TABS.map((tab) => {
         const isActive = active === tab.id;
         return (
@@ -27,14 +26,17 @@ export function Tabs({ active, onChange }: TabsProps) {
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'relative px-5 py-[11px] text-[13px] font-medium whitespace-nowrap cursor-pointer',
+              'relative px-5 py-[11px] font-mono text-[10px] uppercase tracking-[.08em] font-medium whitespace-nowrap cursor-pointer',
               'bg-transparent border-0 transition-colors duration-100',
               isActive ? 'text-text' : 'text-text-sub hover:text-text-muted'
             )}
           >
             {tab.label}
             {isActive && (
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-green rounded-t-full" />
+              <span
+                className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t-full"
+                style={{ background: tab.activeColor }}
+              />
             )}
           </button>
         );
