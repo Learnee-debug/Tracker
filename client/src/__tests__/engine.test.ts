@@ -20,7 +20,11 @@ import {
   genMission,
   calcWeeklyScore,
   getSprintDay,
+  hxToTaskIdx,
+  get7Days,
+  pace,
 } from '../lib/engine';
+import { HX_DEFS, HX_ORDER } from '../data/hxDefs';
 import type { CareerState } from '@/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -515,5 +519,139 @@ describe('getSprintDay', () => {
     longAgo.setDate(longAgo.getDate() - 100); // 101 days ago
     const result = getSprintDay(longAgo.toISOString().split('T')[0]);
     expect(result).toBe(60);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// hxToTaskIdx
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('hxToTaskIdx', () => {
+  it('returns 0 when hx is empty', () => {
+    expect(hxToTaskIdx({})).toBe(0);
+  });
+
+  it('returns 7 when all 7 database tasks are done', () => {
+    const hx = makeHx(['db1','db2','db3','db4','db5','db6','db7']);
+    expect(hxToTaskIdx(hx)).toBe(7);
+  });
+
+  it('returns 3 when first 3 tasks are done and 4th is not', () => {
+    const hx = makeHx(['db1','db2','db3']);
+    expect(hxToTaskIdx(hx)).toBe(3);
+  });
+
+  it('returns totalTasks when all tasks are complete', () => {
+    const allIds: string[] = [];
+    for (const key of HX_ORDER) {
+      HX_DEFS[key].tasks.forEach((t) => allIds.push(t.id));
+    }
+    const total = HX_ORDER.reduce((acc, k) => acc + HX_DEFS[k].tasks.length, 0);
+    expect(hxToTaskIdx(makeHx(allIds))).toBe(total);
+  });
+
+  it('stops at first incomplete task even if later tasks are marked done', () => {
+    // db1 done, db2 NOT done, db3 done — should stop at index 1
+    const hx = makeHx(['db1', 'db3']);
+    expect(hxToTaskIdx(hx)).toBe(1);
+  });
+
+  it('handles false values as incomplete', () => {
+    const hx: Record<string, boolean> = { db1: true, db2: false, db3: true };
+    expect(hxToTaskIdx(hx)).toBe(1);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// get7Days
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('get7Days', () => {
+  it('returns 7 elements always', () => {
+    expect(get7Days({}, 5, 0)).toHaveLength(7);
+  });
+
+  it('returns fut for days before sprint start', () => {
+    const result = get7Days({}, 2, 0);
+    // sprintDay=2: days visible are [-4,-3,-2,-1,0,1,2]
+    // day < 1 → fut for indices 0-4 (days -4 to 0)
+    expect(result[0]).toBe('fut');
+    expect(result[4]).toBe('fut');
+  });
+
+  it('today dot reflects nnDoneCount=3 as done', () => {
+    const result = get7Days({}, 10, 3);
+    expect(result[6]).toBe('done');
+  });
+
+  it('today dot reflects nnDoneCount=1 as part', () => {
+    const result = get7Days({}, 10, 1);
+    expect(result[6]).toBe('part');
+  });
+
+  it('today dot reflects nnDoneCount=0 as miss', () => {
+    const result = get7Days({}, 10, 0);
+    expect(result[6]).toBe('miss');
+  });
+
+  it('reads past days from cal', () => {
+    const cal = { d9: 'good' as const, d8: 'partial' as const, d7: 'miss' as const };
+    const result = get7Days(cal, 10, 0);
+    expect(result[5]).toBe('done');   // d9 = good → done
+    expect(result[4]).toBe('part');   // d8 = partial → part
+    expect(result[3]).toBe('miss');   // d7 = miss → miss
+  });
+
+  it('unlogged past days default to miss', () => {
+    const result = get7Days({}, 10, 0);
+    // All past days unlogged → miss
+    for (let i = 0; i < 6; i++) expect(result[i]).toBe('miss');
+  });
+
+  it('sprint day 1 has 6 fut dots and today dot', () => {
+    const result = get7Days({}, 1, 3);
+    expect(result.filter((d) => d === 'fut')).toHaveLength(6);
+    expect(result[6]).toBe('done');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// pace
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('pace', () => {
+  it('returns on pace when value equals expected', () => {
+    // owned target=130, day 30 → expected = round(130/60*30) = 65
+    const result = pace('owned', 65, 30);
+    expect(result.cls).toBe('ok');
+    expect(result.txt).toBe('on pace');
+  });
+
+  it('returns on pace when value exceeds expected', () => {
+    expect(pace('owned', 100, 30).cls).toBe('ok');
+  });
+
+  it('returns behind when value is below expected', () => {
+    // owned target=130, day 30 → expected=65, value=50 → 15 behind
+    const result = pace('owned', 50, 30);
+    expect(result.cls).toBe('behind');
+    expect(result.txt).toBe('15 behind');
+  });
+
+  it('returns on pace for commits at day 0', () => {
+    expect(pace('commits', 0, 0).cls).toBe('ok');
+  });
+
+  it('correct expected for mocks: target 8, day 60 → expected 8', () => {
+    expect(pace('mocks', 8, 60).cls).toBe('ok');
+    expect(pace('mocks', 7, 60).cls).toBe('behind');
+    expect(pace('mocks', 7, 60).txt).toBe('1 behind');
+  });
+
+  it('handles sprint day 1 correctly', () => {
+    // owned: round(130/60*1) = round(2.16) = 2
+    const result = pace('owned', 0, 1);
+    expect(result.cls).toBe('behind');
+    expect(result.txt).toBe('2 behind');
   });
 });

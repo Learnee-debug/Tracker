@@ -16,6 +16,84 @@ import { CHALLENGES, SKILL_KEYS, type SkillKey } from '@/data/challenges';
 import { HX_DEFS, HX_ORDER } from '@/data/hxDefs';
 import { DSA_SCHEDULE } from '@/data/dsaSchedule';
 
+// ─── Migration: hx record → taskIdx ──────────────────────────────────────────
+// Converts legacy hx: Record<taskId, boolean> to a linear task index.
+// taskIdx = index of the first incomplete task in HX_ORDER sequence.
+// Returns totalTasks when all tasks are complete; 0 when hx is empty.
+// No progress is lost — all consecutively-completed tasks are preserved.
+
+export function hxToTaskIdx(hx: Record<string, boolean>): number {
+  let idx = 0;
+  for (const sectionKey of HX_ORDER) {
+    const section = HX_DEFS[sectionKey];
+    for (const task of section.tasks) {
+      if (!hx[task.id]) return idx;
+      idx++;
+    }
+  }
+  return idx;
+}
+
+// ─── DotState ─────────────────────────────────────────────────────────────────
+
+export type DotState = 'done' | 'part' | 'miss' | 'fut';
+
+// ─── get7Days ─────────────────────────────────────────────────────────────────
+// Returns a 7-element array of dot states for the streak row.
+// Oldest day is index 0; today is index 6.
+// Today's status is derived from nnDoneCount (live NN state), not from cal,
+// so the dot reflects the current session before the day is logged.
+// Past days are read from cal; unlogged past days default to 'miss'.
+
+export function get7Days(
+  cal: CareerState['cal'],
+  sprintDay: number,
+  nnDoneCount: number,
+): DotState[] {
+  const result: DotState[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const day = sprintDay - i;
+    if (day < 1) {
+      result.push('fut');
+      continue;
+    }
+    if (day === sprintDay) {
+      // Today: always reflect live NN state
+      result.push(nnDoneCount === 3 ? 'done' : nnDoneCount > 0 ? 'part' : 'miss');
+    } else {
+      const state: CalDayState = cal[`d${day}`] ?? '';
+      result.push(
+        state === 'good'    ? 'done' :
+        state === 'partial' ? 'part' :
+        state === 'miss'    ? 'miss' :
+        'miss'  // unlogged past day = miss
+      );
+    }
+  }
+  return result;
+}
+
+// ─── METRIC TARGETS ──────────────────────────────────────────────────────────
+
+export const METRIC_TARGETS = { owned: 130, commits: 60, mocks: 8 } as const;
+export type PaceKey = keyof typeof METRIC_TARGETS;
+
+// ─── pace ─────────────────────────────────────────────────────────────────────
+// Returns pace label and style class for a metric tile.
+// expected = round((target / 60) × sprintDay)
+// "on pace" when actual ≥ expected; "X behind" otherwise.
+
+export function pace(
+  key: PaceKey,
+  value: number,
+  sprintDay: number,
+): { txt: string; cls: 'ok' | 'behind' } {
+  const target = METRIC_TARGETS[key];
+  const expected = Math.round((target / 60) * sprintDay);
+  if (value >= expected) return { txt: 'on pace', cls: 'ok' };
+  return { txt: `${expected - value} behind`, cls: 'behind' };
+}
+
 // ─── Types used only inside the engine ────────────────────────────────────────
 
 export type VerifyScores = Record<SkillKey, number>;
