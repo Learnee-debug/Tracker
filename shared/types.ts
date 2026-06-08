@@ -50,8 +50,10 @@ export interface NonNegotiables {
 export interface WeeklyEntry {
   id: string;
   date: string;
-  score: number;
+  score?: number;       // deprecated — kept so existing entries deserialise without error
+  dsa?: string;         // new: DSA owned this week (numeric string, e.g. "14")
   avoid: string;
+  constraint?: string;  // new: real constraint question
   change: string;
 }
 
@@ -91,7 +93,10 @@ export interface CareerState {
   nnDate: string;                           // ISO date string — resets daily
   risks: Partial<Record<RiskId, boolean>>;
   verify: Record<string, boolean>;          // key: `${skillKey}_${challengeIndex}`
-  hx: Record<string, boolean>;              // key: task id from hxDefs
+  hx: Record<string, boolean>;              // key: task id from hxDefs (legacy)
+  taskIdx: number;                          // linear task pointer (migration target)
+  focusDSA: string;                         // today's DSA focus, user-editable
+  skills: boolean[];                        // 15-item flat skill check array (REVIEW §B)
   cal: Record<string, CalDayState>;         // key: `d${dayNumber}`
   sprintStart: string;                      // ISO date string
   weeklyHistory: WeeklyEntry[];
@@ -144,3 +149,7 @@ export interface Mission {
   habit: string;
   isCritical: boolean;
 }
+
+
+
+
