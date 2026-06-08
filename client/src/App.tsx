@@ -62,7 +62,7 @@ function AppInner() {
     <div className="min-h-screen flex flex-col">
       <Header syncStatus={syncStatus} />
       <Tabs active={tab} onChange={handleTabChange} />
-      <main className="flex-1 max-w-[640px] mx-auto w-full px-5 py-5 pb-24">
+      <main className="flex-1 max-w-[1120px] mx-auto w-full px-5 md:px-8 py-6 pb-28">
         {tab === 'now'    && <Now />}
         {tab === 'build'  && <Build />}
         {tab === 'review' && <Review />}

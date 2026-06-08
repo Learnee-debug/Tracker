@@ -66,28 +66,27 @@ export function Build() {
         style={{ background: 'var(--card)', borderColor: 'rgba(255,255,255,0.07)' }}>
 
         {/* Phase / Milestone breadcrumb */}
-        <div className="px-5 pt-[18px]">
-          <div className="flex items-baseline gap-[10px] mb-1">
-            <span className="font-mono text-[9px] uppercase tracking-[.12em] w-20 shrink-0" style={{ color: '#52525B' }}>PHASE</span>
-            <span className="font-mono text-[12px] text-text-sub">{task.phase}</span>
-          </div>
-          <div className="flex items-baseline gap-[10px] mb-4">
-            <span className="font-mono text-[9px] uppercase tracking-[.12em] w-20 shrink-0" style={{ color: '#52525B' }}>MILESTONE</span>
-            <span className="font-mono text-[12px] font-medium" style={{ color: 'var(--amber)' }}>{task.milestone}</span>
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-mono text-[9px] uppercase tracking-[.12em]" style={{ color: '#52525B' }}>PHASE</span>
+            <span className="font-mono text-[9px] uppercase tracking-[.12em]" style={{ color: '#52525B' }}>/</span>
+            <span className="font-mono text-[11px] text-text-sub">{task.phase}</span>
+            <span className="font-mono text-[9px] uppercase tracking-[.12em]" style={{ color: '#52525B' }}>·</span>
+            <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--amber)' }}>{task.milestone}</span>
           </div>
         </div>
 
-        <div className="border-t mx-0 mb-0" style={{ borderColor: 'rgba(255,255,255,0.07)' }} />
+        <div className="border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }} />
 
         {/* Task body */}
-        <div className="px-5 pt-5 pb-4">
-          <div className="font-mono text-[10px] uppercase tracking-[.10em] mb-[14px]" style={{ color: 'var(--amber)' }}>NEXT TASK</div>
-          <div className="text-[20px] font-semibold leading-[1.4] mb-[14px] text-text">{task.label}</div>
+        <div className="px-6 pt-7 pb-5">
+          <div className="font-mono text-[10px] uppercase tracking-[.10em] mb-4" style={{ color: 'var(--amber)' }}>NEXT TASK</div>
+          <div className="text-[26px] md:text-[38px] font-semibold leading-[1.25] mb-4 text-text">{task.label}</div>
         </div>
 
         {/* Done When accordion */}
         <div
-          className="flex items-center justify-between px-5 py-[14px] cursor-pointer select-none border-t"
+          className="flex items-center justify-between px-6 py-4 cursor-pointer select-none border-t"
           style={{ borderColor: 'rgba(255,255,255,0.07)' }}
           onClick={() => setDwOpen((v) => !v)}
         >
@@ -99,8 +98,8 @@ export function Build() {
           }}>▾</span>
         </div>
         {dwOpen && (
-          <div className="px-5 pb-[18px]">
-            <p className="text-[13px] leading-[1.75]" style={{ color: '#A1A1AA' }}>{task.doneWhen}</p>
+          <div className="px-6 pb-6">
+            <p className="text-[14px] leading-[1.8]" style={{ color: '#A1A1AA' }}>{task.doneWhen}</p>
           </div>
         )}
       </div>
@@ -108,7 +107,7 @@ export function Build() {
       {/* ── Mark Complete ── */}
       <button
         onClick={completeTask}
-        className="w-full h-12 rounded-[10px] mb-2 font-semibold text-[14px] cursor-pointer transition-colors border"
+        className="w-full h-14 rounded-[10px] mb-2 font-semibold text-[15px] cursor-pointer transition-colors border"
         style={{ background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.20)', color: 'var(--green)' }}
       >
         Mark Complete

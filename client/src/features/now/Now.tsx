@@ -9,7 +9,7 @@ import { HX_DEFS, HX_ORDER } from '@/data/hxDefs';
 function AlertBanner({ done }: { done: number }) {
   if (done >= 3) return null;
   return (
-    <div className="flex items-center gap-3 px-[18px] py-3 mb-5 rounded-r-[8px] border-l-2"
+    <div className="flex items-center gap-3 px-[18px] py-3 rounded-r-[8px] border-l-2"
       style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'var(--red)' }}>
       <span className="font-mono text-[10px] font-bold px-2 py-[3px] rounded-[5px] border shrink-0"
         style={{ background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.20)', color: 'var(--red)' }}>
@@ -35,7 +35,7 @@ function NonNegotiables() {
   const done = [state.nn.d1, state.nn.d2, state.nn.d3].filter(Boolean).length;
 
   return (
-    <div className="mb-5">
+    <div>
       <div className="flex items-center justify-between mb-2">
         <span className="font-mono text-[10px] text-text-sub uppercase tracking-[.10em]">Non-Negotiables</span>
         <span className="font-mono text-[11px] font-bold" style={{ color: done === 3 ? 'var(--green)' : 'var(--blue)' }}>{done}/3</span>
@@ -95,7 +95,7 @@ function TodaysFocus() {
   }, [state.taskIdx]);
 
   return (
-    <div className="mb-5">
+    <div>
       <div className="mb-2">
         <span className="font-mono text-[10px] text-text-sub uppercase tracking-[.10em]">Today's Focus</span>
       </div>
@@ -146,8 +146,8 @@ function MetricTiles() {
   const hxPct     = useMemo(() => (total > 0 ? Math.round((state.taskIdx / total) * 100) : 0), [state.taskIdx, total]);
 
   return (
-    <div className="mb-5">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-[10px]">
+    <div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {TILE_DEFS.map(({ key, label, color, borderTop }) => {
           const value = state.score[key] ?? 0;
           const p     = pace(key, value, sprintDay);
@@ -230,10 +230,12 @@ export function Now() {
   const nnDone = [state.nn.d1, state.nn.d2, state.nn.d3].filter(Boolean).length;
 
   return (
-    <div>
+    <div className="space-y-5">
       <AlertBanner done={nnDone} />
-      <NonNegotiables />
-      <TodaysFocus />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+        <NonNegotiables />
+        <TodaysFocus />
+      </div>
       <MetricTiles />
       <StreakRow />
     </div>

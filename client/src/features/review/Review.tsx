@@ -60,7 +60,7 @@ function SectionA() {
   const fi = 'w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-[8px] px-[14px] py-[10px] text-text text-[13px] outline-none transition-colors focus:border-[rgba(59,130,246,0.5)] placeholder:text-[#52525B]';
 
   return (
-    <div className="mb-8">
+    <div>
       <div className="font-mono text-[10px] uppercase tracking-[.10em] mb-1" style={{ color: 'var(--purple)' }}>
         WEEKLY RETROSPECTIVE
       </div>
@@ -155,7 +155,7 @@ function SectionB() {
   const total = state.skills.filter(Boolean).length;
 
   return (
-    <div className="mb-8">
+    <div>
       <div className="flex items-center justify-between mb-1">
         <span className="font-mono text-[10px] uppercase tracking-[.10em] text-text-sub">SKILL CHECK</span>
         <span className="font-mono text-[13px] font-bold" style={{ color: scoreColor(total, 15) }}>{total}/15</span>
@@ -353,9 +353,10 @@ function Divider() {
 export function Review() {
   return (
     <div>
-      <SectionA />
-      <Divider />
-      <SectionB />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <SectionA />
+        <SectionB />
+      </div>
       <Divider />
       <SectionC />
     </div>
