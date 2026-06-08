@@ -21,22 +21,6 @@ export interface Score {
 
 export type CalDayState = 'good' | 'partial' | 'miss' | '';
 
-// ── Risk ──────────────────────────────────────────────────────────────────────
-
-export type RiskId =
-  | 'no-dsa'
-  | 'no-commit'
-  | 'new-project'
-  | 'plan-only'
-  | 'tutorial'
-  | 'no-mock'
-  | 'consume'
-  | 'not-owned'
-  | 'internship-window'
-  | 'no-review';
-
-export type RiskLevel = 'critical' | 'high' | 'medium';
-
 // ── Non-Negotiables ───────────────────────────────────────────────────────────
 
 export interface NonNegotiables {
@@ -55,15 +39,6 @@ export interface WeeklyEntry {
   avoid: string;
   constraint?: string;  // new: real constraint question
   change: string;
-}
-
-export interface WeeklyReviewInputs {
-  dsaCount: number;        // new problems owned this week
-  commitLevel: number;     // 0 | 1 | 2 | 4 | 6
-  buildLevel: number;      // 0 | 1 | 2 | 3
-  avoidText: string;
-  blockText: string;
-  changeText: string;
 }
 
 // ── Pipeline ──────────────────────────────────────────────────────────────────
@@ -91,9 +66,7 @@ export interface CareerState {
   score: Score;
   nn: NonNegotiables;
   nnDate: string;                           // ISO date string — resets daily
-  risks: Partial<Record<RiskId, boolean>>;
-  verify: Record<string, boolean>;          // key: `${skillKey}_${challengeIndex}`
-  hx: Record<string, boolean>;              // key: task id from hxDefs (legacy)
+  hx: Record<string, boolean>;              // legacy: task id → done, kept for migration + hxPct
   taskIdx: number;                          // linear task pointer (migration target)
   focusDSA: string;                         // today's DSA focus, user-editable
   skills: boolean[];                        // 15-item flat skill check array (REVIEW §B)
@@ -130,26 +103,3 @@ export interface ApiError {
 }
 
 export type ApiResult<T> = ApiOk<T> | ApiError;
-
-// ── Tier readiness ────────────────────────────────────────────────────────────
-
-export type TierId = 'B' | 'C' | 'D';
-
-export interface TierResult {
-  pct: number;
-  gap: string;
-}
-
-// ── Mission ───────────────────────────────────────────────────────────────────
-
-export interface Mission {
-  dsa: string;
-  build: string;
-  review: string;
-  habit: string;
-  isCritical: boolean;
-}
-
-
-
-

@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useCareerStore, useCareerActions } from '@/store/careerStore';
 import { cn } from '@/lib/utils';
-import { getSprintDay, calcHxOverallPct, get7Days, pace, type DotState } from '@/lib/engine';
+import { getSprintDay, get7Days, pace, type DotState } from '@/lib/engine';
 import { HX_DEFS, HX_ORDER } from '@/data/hxDefs';
 
 // ─── Alert Banner ─────────────────────────────────────────────────────────────
@@ -139,10 +139,11 @@ const TILE_DEFS = [
 ] as const;
 
 function MetricTiles() {
-  const { state }               = useCareerStore();
+  const { state }     = useCareerStore();
   const { incMetric } = useCareerActions();
   const sprintDay = getSprintDay(state.sprintStart) ?? 0;
-  const hxPct     = useMemo(() => calcHxOverallPct(state.hx), [state.hx]);
+  const total     = useMemo(() => HX_ORDER.reduce((acc, k) => acc + HX_DEFS[k].tasks.length, 0), []);
+  const hxPct     = useMemo(() => (total > 0 ? Math.round((state.taskIdx / total) * 100) : 0), [state.taskIdx, total]);
 
   return (
     <div className="mb-5">

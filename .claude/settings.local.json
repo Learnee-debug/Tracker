@@ -27,7 +27,13 @@
       "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker add server/package.json railway.toml)",
       "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: run server with tsx directly — no compilation step *)",
       "Bash(vercel deploy *)",
-      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: inline shared types into client — fixes Vercel build *)"
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: inline shared types into client — fixes Vercel build *)",
+      "Bash(curl -s https://career-os-jet.vercel.app)",
+      "Bash(git -C /c/Users/padko/OneDrive/Desktop/Tracker commit -m 'fix: hardcode Vercel URL in CORS allowed origins *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npx vercel *)"
     ]
   }
 }

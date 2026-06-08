@@ -13,10 +13,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import type { CareerState, RiskId, PipelineEntry, PipelineStatus } from '@/types';
-import type { SkillKey } from '@/data/challenges';
+import type { CareerState, CalDayState, PipelineEntry, PipelineStatus } from '@/types';
 import { generateId } from '@/lib/utils';
-import { hxToTaskIdx } from '@/lib/engine';
+import { hxToTaskIdx, getSprintDay } from '@/lib/engine';
 import { HX_DEFS, HX_ORDER } from '@/data/hxDefs';
 
 // ─── Default state ────────────────────────────────────────────────────────────
@@ -25,8 +24,6 @@ export const DEFAULT_STATE: CareerState = {
   score:          { solved: 0, owned: 0, verbal: 0, commits: 0, mocks: 0, lc: 0, apps: 0, oss: 0 },
   nn:             { d1: false, d2: false, d3: false },
   nnDate:         '',
-  risks:          {},
-  verify:         {},
   hx:             {},
   taskIdx:        0,
   focusDSA:       '',
@@ -41,21 +38,13 @@ export const DEFAULT_STATE: CareerState = {
 // ─── Action types ─────────────────────────────────────────────────────────────
 
 export type Action =
-  // ── Legacy actions (kept until old screens are removed) ─────────────────────
   | { type: 'LOAD_STATE';        payload: CareerState }
   | { type: 'SET_SPRINT_START';  payload: string }
-  | { type: 'TOGGLE_NN';        payload: 1 | 2 | 3 }
+  | { type: 'TOGGLE_NN';         payload: 1 | 2 | 3 }
   | { type: 'RESET_NN_IF_NEW_DAY' }
-  | { type: 'TOGGLE_RISK';       payload: RiskId }
-  | { type: 'TOGGLE_VERIFY';     payload: { key: SkillKey; index: number } }
-  | { type: 'TOGGLE_HX';         payload: string }
-  | { type: 'CYCLE_CAL_DAY';     payload: number }
-  | { type: 'UPDATE_SCORE';      payload: { key: keyof CareerState['score']; delta: number } }
   | { type: 'ADD_PIPELINE';      payload: { co: string; status: PipelineStatus; notes: string } }
   | { type: 'REMOVE_PIPELINE';   payload: string }
   | { type: 'SAVE_CO_NOTE';      payload: { name: string; note: string } }
-  | { type: 'SAVE_WEEKLY';       payload: { score: number; avoid: string; change: string } }
-  // ── New actions for locked architecture ──────────────────────────────────────
   | { type: 'INC_METRIC';        payload: 'owned' | 'commits' | 'mocks' }
   | { type: 'DEC_METRIC';        payload: 'owned' | 'commits' | 'mocks' }
   | { type: 'SET_FOCUS_DSA';     payload: string }
@@ -64,8 +53,6 @@ export type Action =
   | { type: 'SAVE_REVIEW';       payload: { dsa: string; avoid: string; constraint: string; change: string } };
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
-
-const CAL_CYCLE = ['', 'good', 'partial', 'miss'] as const;
 
 function reducer(state: CareerState, action: Action): CareerState {
   switch (action.type) {
@@ -97,46 +84,18 @@ function reducer(state: CareerState, action: Action): CareerState {
     case 'RESET_NN_IF_NEW_DAY': {
       const todayStr = new Date().toDateString();
       if (state.nnDate === todayStr) return state;
+      // Persist yesterday's NN completion to cal before resetting
+      const prevSprintDay = getSprintDay(state.sprintStart);
+      const doneCount = [state.nn.d1, state.nn.d2, state.nn.d3].filter(Boolean).length;
+      const calEntry: CalDayState = doneCount === 3 ? 'good' : doneCount > 0 ? 'partial' : 'miss';
+      const calUpdate = (prevSprintDay ?? 0) > 0
+        ? { [`d${prevSprintDay!}`]: calEntry }
+        : {};
       return {
         ...state,
         nn:     { d1: false, d2: false, d3: false },
         nnDate: todayStr,
-      };
-    }
-
-    case 'TOGGLE_RISK':
-      return {
-        ...state,
-        risks: { ...state.risks, [action.payload]: !state.risks[action.payload] },
-      };
-
-    case 'TOGGLE_VERIFY': {
-      const k = `${action.payload.key}_${action.payload.index}`;
-      return {
-        ...state,
-        verify: { ...state.verify, [k]: !state.verify[k] },
-      };
-    }
-
-    case 'TOGGLE_HX':
-      return {
-        ...state,
-        hx: { ...state.hx, [action.payload]: !state.hx[action.payload] },
-      };
-
-    case 'CYCLE_CAL_DAY': {
-      const key = `d${action.payload}`;
-      const current = state.cal[key] ?? '';
-      const nextIndex = (CAL_CYCLE.indexOf(current as typeof CAL_CYCLE[number]) + 1) % CAL_CYCLE.length;
-      return { ...state, cal: { ...state.cal, [key]: CAL_CYCLE[nextIndex] } };
-    }
-
-    case 'UPDATE_SCORE': {
-      const { key, delta } = action.payload;
-      const current = state.score[key] ?? 0;
-      return {
-        ...state,
-        score: { ...state.score, [key]: Math.max(0, current + delta) },
+        cal:    { ...state.cal, ...calUpdate },
       };
     }
 
@@ -162,20 +121,6 @@ function reducer(state: CareerState, action: Action): CareerState {
         ...state,
         coNotes: { ...state.coNotes, [action.payload.name]: action.payload.note },
       };
-
-    case 'SAVE_WEEKLY': {
-      const entry = {
-        id:     generateId(),
-        date:   new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
-        score:  action.payload.score,
-        avoid:  action.payload.avoid,
-        change: action.payload.change,
-      };
-      const history = [entry, ...state.weeklyHistory].slice(0, 8);
-      return { ...state, weeklyHistory: history };
-    }
-
-    // ── New actions ────────────────────────────────────────────────────────────
 
     case 'INC_METRIC': {
       const key = action.payload;
@@ -260,26 +205,18 @@ export function useCareerActions() {
   const { dispatch } = useCareerStore();
 
   return {
-    // ── Legacy ────────────────────────────────────────────────────────────────
-    loadState:       useCallback((s: CareerState) => dispatch({ type: 'LOAD_STATE', payload: s }), [dispatch]),
-    setSprintStart:  useCallback((v: string)      => dispatch({ type: 'SET_SPRINT_START', payload: v }), [dispatch]),
-    toggleNN:        useCallback((n: 1 | 2 | 3)   => dispatch({ type: 'TOGGLE_NN', payload: n }), [dispatch]),
-    resetNNIfNewDay: useCallback(()                => dispatch({ type: 'RESET_NN_IF_NEW_DAY' }), [dispatch]),
-    toggleRisk:      useCallback((id: RiskId)      => dispatch({ type: 'TOGGLE_RISK', payload: id }), [dispatch]),
-    toggleVerify:    useCallback((key: SkillKey, index: number) => dispatch({ type: 'TOGGLE_VERIFY', payload: { key, index } }), [dispatch]),
-    toggleHx:        useCallback((id: string)      => dispatch({ type: 'TOGGLE_HX', payload: id }), [dispatch]),
-    cycleCalDay:     useCallback((day: number)     => dispatch({ type: 'CYCLE_CAL_DAY', payload: day }), [dispatch]),
-    updateScore:     useCallback((key: keyof CareerState['score'], delta: number) => dispatch({ type: 'UPDATE_SCORE', payload: { key, delta } }), [dispatch]),
+    loadState:       useCallback((s: CareerState)  => dispatch({ type: 'LOAD_STATE', payload: s }), [dispatch]),
+    setSprintStart:  useCallback((v: string)        => dispatch({ type: 'SET_SPRINT_START', payload: v }), [dispatch]),
+    toggleNN:        useCallback((n: 1 | 2 | 3)    => dispatch({ type: 'TOGGLE_NN', payload: n }), [dispatch]),
+    resetNNIfNewDay: useCallback(()                 => dispatch({ type: 'RESET_NN_IF_NEW_DAY' }), [dispatch]),
     addPipeline:     useCallback((co: string, status: PipelineStatus, notes: string) => dispatch({ type: 'ADD_PIPELINE', payload: { co, status, notes } }), [dispatch]),
-    removePipeline:  useCallback((id: string)      => dispatch({ type: 'REMOVE_PIPELINE', payload: id }), [dispatch]),
+    removePipeline:  useCallback((id: string)       => dispatch({ type: 'REMOVE_PIPELINE', payload: id }), [dispatch]),
     saveCoNote:      useCallback((name: string, note: string) => dispatch({ type: 'SAVE_CO_NOTE', payload: { name, note } }), [dispatch]),
-    saveWeekly:      useCallback((score: number, avoid: string, change: string) => dispatch({ type: 'SAVE_WEEKLY', payload: { score, avoid, change } }), [dispatch]),
-    // ── New ───────────────────────────────────────────────────────────────────
     incMetric:       useCallback((key: 'owned' | 'commits' | 'mocks') => dispatch({ type: 'INC_METRIC', payload: key }), [dispatch]),
     decMetric:       useCallback((key: 'owned' | 'commits' | 'mocks') => dispatch({ type: 'DEC_METRIC', payload: key }), [dispatch]),
-    setFocusDSA:     useCallback((text: string)   => dispatch({ type: 'SET_FOCUS_DSA', payload: text }), [dispatch]),
-    completeTask:    useCallback(()                => dispatch({ type: 'COMPLETE_TASK' }), [dispatch]),
-    toggleSkill:     useCallback((i: number)       => dispatch({ type: 'TOGGLE_SKILL', payload: i }), [dispatch]),
+    setFocusDSA:     useCallback((text: string)    => dispatch({ type: 'SET_FOCUS_DSA', payload: text }), [dispatch]),
+    completeTask:    useCallback(()                 => dispatch({ type: 'COMPLETE_TASK' }), [dispatch]),
+    toggleSkill:     useCallback((i: number)        => dispatch({ type: 'TOGGLE_SKILL', payload: i }), [dispatch]),
     saveReview:      useCallback((dsa: string, avoid: string, constraint: string, change: string) =>
       dispatch({ type: 'SAVE_REVIEW', payload: { dsa, avoid, constraint, change } }), [dispatch]),
   };
