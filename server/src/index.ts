@@ -6,6 +6,7 @@ import { connectDB } from './lib/db';
 import authRoutes from './routes/auth';
 import stateRoutes from './routes/state';
 import syncRoutes from './routes/sync';
+import resetRoutes from './routes/reset';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -41,6 +42,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/state', stateRoutes);
 app.use('/api/sync',  syncRoutes);
+app.use('/api/reset', resetRoutes);
 
 // Health check — must respond before MongoDB connects so Railway
 // healthcheck passes during the startup window.
